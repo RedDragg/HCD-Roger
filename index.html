@@ -91,9 +91,7 @@ body.menu-right .text-content {
 /* ✅ Zinnen */
 .text-content span {
   display: inline-block;
-  margin-bottom: 0.5rem;
   outline: none;
-  padding: 0.2rem;
 }
 
 .text-content span:focus {
@@ -307,6 +305,13 @@ body.menu-right .text-content {
   margin-top: 0.3rem;
 }
 
+.highlighted-word {
+  background-color: #1e90ff;
+  color: white;
+  border-radius: 4px;
+  padding: 0 0px;
+  transition: background-color 0.2s;
+}
 
 
 
@@ -402,7 +407,7 @@ body.menu-right .text-content {
       min="0" 
       max="5" 
       step="0.1" 
-      value="0"
+      value=".5"
       aria-label="Letter spacing"
     >
     <div id="letterSpacingValue">Current: 0</div>
@@ -556,6 +561,7 @@ let speechRate = 0.9;
 let speechVolume = 1.0;
 let rateDebounceTimeout = null;
 let volumeDebounceTimeout = null;
+let highlightInterval = null;
 
 
 // ✅ Load saved theme
@@ -576,21 +582,53 @@ if (storedRate) {
   slider.setAttribute('aria-valuetext', `Speed: ${speechRate.toFixed(1)}`);
 }
 
-function speakText(text) {
-  if (currentUtterance) {
-    window.speechSynthesis.cancel();
-    currentUtterance = null;
-  }
+function speakText(text, spanElement = null) {
+  stopSpeaking();
 
   setTimeout(() => {
-    currentUtterance = new SpeechSynthesisUtterance(text);
-    currentUtterance.lang = 'en-GB';
-    currentUtterance.rate = speechRate;
-    currentUtterance.volume = speechVolume;
-    currentUtterance.onend = () => currentUtterance = null;
-    window.speechSynthesis.speak(currentUtterance);
-  }, 100);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-GB';
+    utterance.rate = speechRate;
+    utterance.volume = speechVolume;
+
+    const wordSpans = spanElement ? spanElement.querySelectorAll('.word') : [];
+
+    // Bouw startindexen per woord
+    const wordBoundaries = [];
+    let currentIndex = 0;
+    wordSpans.forEach(wordEl => {
+      const wordText = wordEl.textContent.trim();
+      wordBoundaries.push({ start: currentIndex, element: wordEl });
+      currentIndex += wordText.length + 1; // +1 voor spatie
+    });
+
+    utterance.onboundary = (event) => {
+      if (event.name !== 'word') return;
+
+      const charIndex = event.charIndex;
+
+      for (let i = 0; i < wordBoundaries.length; i++) {
+        const current = wordBoundaries[i];
+        const next = wordBoundaries[i + 1] || { start: Infinity };
+
+        if (charIndex >= current.start && charIndex < next.start) {
+          wordSpans.forEach(w => w.classList.remove('highlighted-word'));
+          current.element.classList.add('highlighted-word');
+          break;
+        }
+      }
+    };
+
+    utterance.onend = () => {
+      wordSpans.forEach(w => w.classList.remove('highlighted-word'));
+      currentUtterance = null;
+    };
+
+    currentUtterance = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, 50);
 }
+
 
 
 function stopSpeaking() {
@@ -608,6 +646,10 @@ function announceRate() {
 }
 
 if (slider && speedValueText) {
+  if (highlightInterval) {
+  clearInterval(highlightInterval);
+}
+
     slider.addEventListener('input', () => {
   speechRate = parseFloat(slider.value);
   localStorage.setItem('speechRate', speechRate.toFixed(1));
@@ -800,7 +842,47 @@ function updateAnnotationsPanel() {
 document.querySelectorAll('.text-content span').forEach(span => {
   span.setAttribute('tabindex', '0');
 
-  span.addEventListener('focus', () => speakText(span.textContent));
+  span.addEventListener('focus', () => {
+  const text = span.textContent.trim();
+  const words = text.split(/\s+/);
+
+  // Reset eerst eventuele vorige highlights
+  document.querySelectorAll('.highlighted-word').forEach(el => {
+    el.classList.remove('highlighted-word');
+  });
+
+  // Maak HTML met losse <span class="word">
+  span.innerHTML = words.map(w => `<span class="word">${w}</span>`).join(' ');
+
+  speakText(text, span);
+
+  const wordElements = span.querySelectorAll('.word');
+  let index = 0;
+
+  // Start Speech
+  speakText(text); // (of laat dit weg als je alleen visueel wil)
+
+  // Highlight woorden 1 voor 1
+  const wordsPerSecond = 3.30 * speechRate; // ⏱️ 3 wps bij rate 1.0 (ca. 180 wpm)
+const highlightMs = 1000 / wordsPerSecond;
+
+
+highlightInterval = setInterval(() => {
+  wordElements.forEach(w => w.classList.remove('highlighted-word'));
+  if (index < wordElements.length) {
+    wordElements[index].classList.add('highlighted-word');
+    index++;
+  } else {
+    clearInterval(highlightInterval);
+  }
+}, highlightMs);
+// ← Pas dit aan voor snelheid (ms per woord)
+});
+span.addEventListener('blur', () => {
+  clearInterval(highlightInterval);
+  span.querySelectorAll('.word').forEach(w => w.classList.remove('highlighted-word'));
+});
+
   span.addEventListener('blur', stopSpeaking);
   span.addEventListener('click', () => speakText(span.textContent));
 
@@ -1166,6 +1248,26 @@ letterSpacingSlider.addEventListener('input', () => {
 });
 
 
+function wrapWordsInSpans() {
+  document.querySelectorAll('.text-content span').forEach(span => {
+    const words = span.textContent.trim().split(/\s+/);
+    span.innerHTML = words.map(word => `<span class="word">${word}</span>`).join(' ');
+  });
+}
+
+function wrapWordsInSpans() {
+  document.querySelectorAll('.text-content span').forEach(span => {
+    const words = span.textContent.trim().split(/\s+/);
+    span.innerHTML = words.map(word => `<span class="word">${word} </span>`).join('');
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.text-content span')) {
+    clearInterval(highlightInterval);
+    document.querySelectorAll('.highlighted-word').forEach(w => w.classList.remove('highlighted-word'));
+  }
+});
 
 
 window.addEventListener('load', updateAnnotationsPanel);
