@@ -53,6 +53,10 @@ body.menu-right {
 #themeToggle {
   top: 10px;
 }
+.text-content p {
+  margin: 0 0 1.2rem 0; /* net wat ademruimte tussen paragrafen */
+}
+
 
 /* ✅ Annotatie-zijbalk */
 .annotations-panel {
@@ -89,12 +93,12 @@ body.menu-right .text-content {
 
 
 /* ✅ Zinnen */
-.text-content span {
+.text-content p {
   display: inline-block;
   outline: none;
 }
 
-.text-content span:focus {
+.text-content p:focus {
   outline: none;
   background-color: #222; /* donkergrijze achtergrond */
   color: #ffea00; /* heldergeel voor goede leesbaarheid */
@@ -258,15 +262,33 @@ body.menu-right .text-content {
 
 .settings-panel {
   position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 999;
+  top: 0;
+  bottom: 0;
+  width: clamp(100px, 23%, 300px);
   background: var(--highlight);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
-  width: 220px;
-  display: none;
+  z-index: 999;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* menu links */
+body:not(.menu-right) .settings-panel {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+/* menu rechts */
+body.menu-right .settings-panel {
+  right: 0;
+  left: auto;
+  transform: translateX(100%);
+}
+
+/* open staat altijd translateX(0) */
+#settingsPanel.open {
+  transform: translateX(0) !important;
 }
 
 .settings-panel button,
@@ -313,6 +335,25 @@ body.menu-right .text-content {
   transition: background-color 0.2s;
 }
 
+.selection-preview {
+  background-color: #1e90ff;
+  color: white;
+  border-radius: 4px;
+  padding: 0 2px;
+}
+
+.text-content p.annotated:focus {
+  background-color: inherit !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  padding: 0.3rem 0.5rem; /* laat dit staan voor spacing */
+  border-radius: 6px;
+}
+
+.text-content p.annotated:focus {
+  outline: 2px dashed #0078d4;
+  outline-offset: 4px;
+}
 
 
 
@@ -321,7 +362,7 @@ body.menu-right .text-content {
 <body>
 
 <!-- 🌗 Theme toggle -->
-<div id="settingsPanel" class="settings-panel" style="display: none;">
+<div id="settingsPanel" class="settings-panel">
     <!-- Toggle donker/licht -->
     <button id="themeToggle" aria-label="Toggle theme: Light or Dark">
       ☀️ Licht / 🌙 Donker
@@ -431,27 +472,27 @@ body.menu-right .text-content {
 </div>
 
 <div class="text-content">
-  <span tabindex="0" id="s1">It is a melancholy object to those, who walk through this great town, or travel
+  <p tabindex="0" id="s1">It is a melancholy object to those, who walk through this great town, or travel
     in the country, when they see the streets, the roads, and cabbin-doors crowded
     with beggars of the female sex, followed by three, four, or six children, all
     in rags, and importuning every passenger for an alms. These mothers, instead of
     being able to work for their honest livelihood, are forced to employ all their
     time in stroling to beg sustenance for their helpless infants who, as they grow
     up, either turn thieves for want of work, or leave their dear native country,
-    to fight for the Pretender in Spain, or sell themselves to the Barbadoes.</span>
-  <span tabindex="0" id="s2">I think it is agreed by all parties, that this prodigious number of children in
+    to fight for the Pretender in Spain, or sell themselves to the Barbadoes.</p>
+  <p tabindex="0" id="s2">I think it is agreed by all parties, that this prodigious number of children in
     the arms, or on the backs, or at the heels of their mothers, and frequently of
     their fathers, is in the present deplorable state of the kingdom, a very great
     additional grievance; and therefore whoever could find out a fair, cheap and
     easy method of making these children sound and useful members of the
     commonwealth, would deserve so well of the publick, as to have his statue set
-    up for a preserver of the nation.</span>
-  <span tabindex="0" id="s3">But my intention is very far from being confined to provide only for the
+    up for a preserver of the nation.</p>
+  <p tabindex="0" id="s3">But my intention is very far from being confined to provide only for the
     children of professed beggars: it is of a much greater extent, and shall take
     in the whole number of infants at a certain age, who are born of parents in
     effect as little able to support them, as those who demand our charity in the
-    streets.</span>
-    <span tabindex="0" id="s4">As to my own part, having turned my thoughts for many years upon this
+    streets.</p>
+    <p tabindex="0" id="s4">As to my own part, having turned my thoughts for many years upon this
         important subject, and maturely weighed the several schemes of our projectors,
         I have always found them grossly mistaken in their computation. It is true, a
         child just dropt from its dam, may be supported by her milk, for a solar year,
@@ -461,13 +502,13 @@ body.menu-right .text-content {
         provide for them in such a manner, as, instead of being a charge upon their
         parents, or the parish, or wanting food and raiment for the rest of their
         lives, they shall, on the contrary, contribute to the feeding, and partly to
-        the clothing of many thousands.</span>
-    <span tabindex="0" id="s5">There is likewise another great advantage in my scheme, that it will prevent
+        the clothing of many thousands.</p>
+    <p tabindex="0" id="s5">There is likewise another great advantage in my scheme, that it will prevent
         those voluntary abortions, and that horrid practice of women murdering their
         bastard children, alas! too frequent among us, sacrificing the poor innocent
         babes, I doubt, more to avoid the expence than the shame, which would move
-        tears and pity in the most savage and inhuman breast.</span>
-    <span tabindex="0" id="s6">The number of souls in this kingdom being usually reckoned one million and a
+        tears and pity in the most savage and inhuman breast.</p>
+    <p tabindex="0" id="s6">The number of souls in this kingdom being usually reckoned one million and a
         half, of these I calculate there may be about two hundred thousand couple,
         whose wives are breeders; from which number I subtract thirty thousand couple,
         who are able to maintain their own children, (although I apprehend there cannot
@@ -486,19 +527,19 @@ body.menu-right .text-content {
         properly looked upon only as probationers; as I have been informed by a
         principal gentleman in the county of Cavan, who protested to me, that he never
         knew above one or two instances under the age of six, even in a part of the
-        kingdom so renowned for the quickest proficiency in that art.</span>
-    <span tabindex="0" id="s7">I am assured by our merchants, that a boy or a girl, before twelve years old,
+        kingdom so renowned for the quickest proficiency in that art.</p>
+    <p tabindex="0" id="s7">I am assured by our merchants, that a boy or a girl, before twelve years old,
         is no saleable commodity, and even when they come to this age, they will not
         yield above three pounds, or three pounds and half a crown at most, on the
         exchange; which cannot turn to account either to the parents or kingdom, the
-        charge of nutriments and rags having been at least four times that value.</span>
-    <span tabindex="0" id="s8">I shall now therefore humbly propose my own thoughts, which I hope will not be
-        liable to the least objection.</span>
-    <span tabindex="0" id="s9">I have been assured by a very knowing American of my acquaintance in London,
+        charge of nutriments and rags having been at least four times that value.</p>
+    <p tabindex="0" id="s8">I shall now therefore humbly propose my own thoughts, which I hope will not be
+        liable to the least objection.</p>
+    <p tabindex="0" id="s9">I have been assured by a very knowing American of my acquaintance in London,
         that a young healthy child well nursed, is, at a year old, a most delicious
         nourishing and wholesome food, whether stewed, roasted, baked, or boiled; and I
-        make no doubt that it will equally serve in a fricasee, or a ragoust.</span>
-    <span tabindex="0" id="s10">I do therefore humbly offer it to publick consideration, that of the hundred
+        make no doubt that it will equally serve in a fricasee, or a ragoust.</p>
+    <p tabindex="0" id="s10">I do therefore humbly offer it to publick consideration, that of the hundred
         and twenty thousand children, already computed, twenty thousand may be reserved
         for breed, whereof only one fourth part to be males; which is more than we
         allow to sheep, black cattle, or swine, and my reason is, that these children
@@ -510,7 +551,7 @@ body.menu-right .text-content {
         fat for a good table. A child will make two dishes at an entertainment for
         friends, and when the family dines alone, the fore or hind quarter will make a
         reasonable dish, and seasoned with a little pepper or salt, will be very good
-        boiled on the fourth day, especially in winter.</span>
+        boiled on the fourth day, especially in winter.</p>
     
 
 </div>
@@ -561,8 +602,13 @@ let speechRate = 0.9;
 let speechVolume = 1.0;
 let rateDebounceTimeout = null;
 let volumeDebounceTimeout = null;
-let highlightInterval = null;
-
+let isSelecting = false;
+let selectionStartIndex = null;
+let selectionEndIndex = null;
+let selectionBaseSpan = null;
+let selectionWords = [];
+let lastSpokenWordIndex = 0;
+let lastSpokenWordIndexPerSpan = {}; // nieuw!
 
 // ✅ Load saved theme
 const savedTheme = localStorage.getItem('theme');
@@ -582,51 +628,129 @@ if (storedRate) {
   slider.setAttribute('aria-valuetext', `Speed: ${speechRate.toFixed(1)}`);
 }
 
+
+function wrapWordsPreservingDivs(element) {
+  if (element.hasAttribute('data-wrapped')) return;
+  element.setAttribute('data-wrapped', 'true');
+
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+  const toReplace = [];
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+
+    // ✅ Skip lege tekst
+    if (!node.nodeValue.trim()) continue;
+
+    const parent = node.parentElement;
+
+    // ✅ Skip als dit binnen een handgemaakte annotatie valt
+    // Bijvoorbeeld: <span id="s-...">...</span>
+    if (
+      parent.closest('[id^="s-"]') ||           // jouw annotatie ID's
+      parent.classList.contains('annotated') || // handmatig gemarkeerd
+      parent.classList.contains('selection-preview') || // tijdelijk selectiestukje
+      parent.classList.contains('word')         // al gewrapt
+    ) {
+      continue;
+    }
+
+    toReplace.push(node);
+  }
+
+  toReplace.forEach(textNode => {
+  const words = textNode.nodeValue.trim().split(/\s+/);
+  const spanWords = words.map((word, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.setAttribute('data-index', i);
+    span.setAttribute('id', `word-${Date.now()}-${i}`); // Voeg een uniek ID toe voor elk woord
+    span.textContent = word;
+    return span;
+  });
+
+  const fragment = document.createDocumentFragment();
+  spanWords.forEach((span, idx) => {
+    fragment.appendChild(span);
+    if (idx < spanWords.length - 1) {
+      fragment.appendChild(document.createTextNode(' '));
+    }
+  });
+
+  textNode.parentNode.replaceChild(fragment, textNode);
+});
+
+}
+
+
+
 function speakText(text, spanElement = null) {
   stopSpeaking();
 
-  setTimeout(() => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-GB';
-    utterance.rate = speechRate;
-    utterance.volume = speechVolume;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-GB';
+  utterance.rate = speechRate;
+  utterance.volume = speechVolume;
 
-    const wordSpans = spanElement ? spanElement.querySelectorAll('.word') : [];
+  if (!spanElement) {
+    speechSynthesis.speak(utterance);
+    return;
+  }
 
-    // Bouw startindexen per woord
-    const wordBoundaries = [];
-    let currentIndex = 0;
-    wordSpans.forEach(wordEl => {
-      const wordText = wordEl.textContent.trim();
-      wordBoundaries.push({ start: currentIndex, element: wordEl });
-      currentIndex += wordText.length + 1; // +1 voor spatie
-    });
+  // ✅ Zorg dat woorden gewrapt zijn
+  wrapWordsPreservingDivs(spanElement);
 
-    utterance.onboundary = (event) => {
-      if (event.name !== 'word') return;
+  // ✅ Nu pas ophalen
+  const wordSpans = spanElement.querySelectorAll(".word");
 
-      const charIndex = event.charIndex;
+  // ✅ Veiligheidscheck
+  if (wordSpans.length === 0) {
+    console.warn("⚠️ Geen .word-spans gevonden binnen:", spanElement);
+  }
 
-      for (let i = 0; i < wordBoundaries.length; i++) {
-        const current = wordBoundaries[i];
-        const next = wordBoundaries[i + 1] || { start: Infinity };
+  // ✅ Voor speechSynthesis: volledige platte tekst
+  const plainText = spanElement.innerText.trim();
+  const words = plainText.split(/\s+/);
 
-        if (charIndex >= current.start && charIndex < next.start) {
-          wordSpans.forEach(w => w.classList.remove('highlighted-word'));
-          current.element.classList.add('highlighted-word');
-          break;
-        }
+  // ✅ Bereken character-offsets per woord
+  const wordOffsets = [];
+  let total = 0;
+  for (let word of words) {
+    wordOffsets.push(total);
+    total += word.length + 1; // +1 voor spatie
+  }
+
+  utterance.text = plainText;
+
+  // ✅ Highlight per woord tijdens voorlezen
+  utterance.onboundary = function (event) {
+    if (event.name !== "word") return;
+
+    const charIndex = event.charIndex;
+    let idx = 0;
+    for (let i = 0; i < wordOffsets.length; i++) {
+      if (charIndex < wordOffsets[i] + words[i].length) {
+        idx = i;
+        break;
       }
-    };
+    }
 
-    utterance.onend = () => {
-      wordSpans.forEach(w => w.classList.remove('highlighted-word'));
-      currentUtterance = null;
-    };
+    if (spanElement && spanElement.id) {
+      lastSpokenWordIndexPerSpan[spanElement.id] = idx;
+    }
 
-    currentUtterance = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, 50);
+    wordSpans.forEach(w => w.classList.remove("highlighted-word"));
+    const current = spanElement.querySelector(`.word[data-index="${idx}"]`);
+    if (current) current.classList.add("highlighted-word");
+  };
+
+  utterance.onend = () => {
+    wordSpans.forEach(w => w.classList.remove("highlighted-word"));
+    currentUtterance = null;
+  };
+
+  currentUtterance = utterance;
+  speechSynthesis.speak(utterance);
 }
 
 
@@ -646,9 +770,6 @@ function announceRate() {
 }
 
 if (slider && speedValueText) {
-  if (highlightInterval) {
-  clearInterval(highlightInterval);
-}
 
     slider.addEventListener('input', () => {
   speechRate = parseFloat(slider.value);
@@ -686,6 +807,7 @@ positionToggle.addEventListener('click', () => {
 function closePopup() {
   popup.style.display = 'none';
   popupOpen = false;
+  isInPopup = true;
   input.value = '';
   input.style.display = 'block';
   saveBtn.style.display = 'inline-block';
@@ -693,266 +815,312 @@ function closePopup() {
   cancelBtn.style.display = 'inline-block';
   currentNote = '';
   currentSpan = null;
+  updateTabbables();
 }
 
 function selectColor(option) {
   const color = option.getAttribute('data-color');
   if (currentSpan && currentNote) {
     const id = currentSpan.id;
+    // Sla de annotatie en kleur op in localStorage
     localStorage.setItem(`note-${id}`, currentNote);
     localStorage.setItem(`color-${id}`, color);
     currentSpan.classList.add('annotated');
     currentSpan.style.backgroundColor = color;
     closePopup();
     speakText("Annotation saved");
-    updateAnnotationsPanel();
+    updateAnnotationsPanel(); // Werk het annotatiepaneel bij
   }
 }
 
+// ✅ Verwijder de annotatie bij het klikken op de verwijderknop
 function updateAnnotationsPanel() {
-  panel.innerHTML = '<h2>Annotaties</h2>';
-  annotationElements = [];
+  const panel = document.getElementById('annotationsPanel');
+  panel.innerHTML = '<h2>Annotaties</h2>'; // Clear existing content
+  annotationElements = []; // Reset the annotation elements array
 
-  document.querySelectorAll('.text-content span').forEach(span => {
-    const note = localStorage.getItem(`note-${span.id}`);
-    const color = localStorage.getItem(`color-${span.id}`);
-    span.classList.remove('annotated');
-    span.style.backgroundColor = '';
+  // Loop door alle opgeslagen annotaties in localStorage
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("note-")) {  // Controleer of de sleutel gerelateerd is aan annotaties
+      const spanId = key.replace("note-", ""); // Haal het span ID op uit de sleutel
+      const note = localStorage.getItem(key); // Haal de annotatie tekst op
+      const color = localStorage.getItem("color-" + spanId); // Haal de kleur van de annotatie op
 
-    if (note) {
-      span.classList.add('annotated');
-      if (color) span.style.backgroundColor = color;
+      // Voeg de tekst weer toe aan de oorspronkelijke span
+      const span = document.getElementById(spanId);
+      if (span) {
+        span.classList.add('annotated');
+        span.style.backgroundColor = color || '#ffea00'; // De kleur voor de annotatie
+      }
 
+      // Maak een nieuw div-element voor de annotatie
       const item = document.createElement('div');
-        item.className = 'annotation-item';
-        item.dataset.ref = span.id; // ✅ koppeling aan juiste span
+      item.className = 'annotation-item';
+      item.style.backgroundColor = color || ''; // Stel de achtergrondkleur van de annotatie in
+      item.dataset.ref = spanId; // Verbind de annotatie met het span ID
+      item.setAttribute('tabindex', '0'); // Maak de annotatie focusable
 
-      item.dataset.ref = span.id; // ✅ koppeling aan de juiste span
-
-      item.setAttribute('tabindex', inAnnotationMode ? '0' : '-1');
-      if (color) item.style.backgroundColor = color;
-
-      item.addEventListener('focus', () => speakText(note));
-      item.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-        e.preventDefault();
-        currentSpan = span;
-        const savedNote = localStorage.getItem(`note-${span.id}`) || '';
-        const savedColor = localStorage.getItem(`color-${span.id}`) || '';
-
-        // Open bewerk-popup
-        input.value = savedNote;
-        popup.style.display = 'block';
-        popupOpen = true;
-        input.focus();
-        speakText("Annotation editing");
-
-        // Focus trap activeren
-        const focusables = [input, saveBtn, cancelBtn];
-        let trapIndex = 0;
-
-        popup.addEventListener('keydown', function focusTrap(e) {
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            if (e.shiftKey) {
-            trapIndex = (trapIndex - 1 + focusables.length) % focusables.length;
-            } else {
-            trapIndex = (trapIndex + 1) % focusables.length;
-            }
-            focusables[trapIndex].focus();
-        }
-        });
-
-
-        // Toon opnieuw kleurkiezer (na opslaan)
-        input.style.display = 'block';
-        saveBtn.style.display = 'inline-block';
-        colorPicker.style.display = 'none';
-
-        // Optioneel: selecteer de kleurvisueel ook alvast
-        const colorOptions = document.querySelectorAll('.color-option');
-        colorOptions.forEach(option => {
-            if (option.getAttribute('data-color') === savedColor) {
-            option.focus(); // of: markeer visueel
-            }
-        });
-        }
-
-        if (e.key === 'Shift' && !e.repeat) {
-    e.preventDefault();
-    const targetSpan = document.getElementById(span.id);
-    if (targetSpan) {
-      targetSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      targetSpan.focus();
-      speakText("Jumped to annotation in text");
-    }
-  }
-
-
-        if (e.key.toLowerCase() === 'x') {
-          // ✅ Confirm delete with speech
-          const confirmDelete = confirm("Are you sure you want to delete this annotation?");
-          if (confirmDelete) {
-            localStorage.removeItem(`note-${span.id}`);
-            localStorage.removeItem(`color-${span.id}`);
-            span.classList.remove('annotated');
-            span.style.backgroundColor = '';
-            speakText("Annotation deleted");
-            updateAnnotationsPanel();
-          }
-        }
-      });
-
+      // Maak het tekst-div-element dat de annotatietekst toont
       const text = document.createElement('div');
       text.textContent = note;
       text.addEventListener('click', () => {
-        document.getElementById(span.id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById(spanId).scrollIntoView({ behavior: 'smooth', block: 'center' });
         speakText("Annotation opened");
-        alert(note);
       });
 
-      const delBtn = document.createElement('button');
-      delBtn.className = 'delete-btn';
-      delBtn.textContent = '';
-      delBtn.setAttribute('tabindex', inAnnotationMode ? '0' : '-1');
-      delBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        // ✅ Confirm delete with speech
-        const confirmDelete = confirm("Are you sure you want to delete this annotation?");
-        if (confirmDelete) {
-          localStorage.removeItem(`note-${span.id}`);
-          localStorage.removeItem(`color-${span.id}`);
-          span.classList.remove('annotated');
-          span.style.backgroundColor = '';
-          speakText("Annotatie deleted");
-          updateAnnotationsPanel();
-        }
-      });
-
+      // Voeg de tekst toe aan het annotatie-item
       item.appendChild(text);
-      item.appendChild(delBtn);
+
+      // Voeg een event listener toe voor het verwijderen van de annotatie
+      item.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'x') {
+        e.preventDefault(); // Voorkom standaard gedraging van de 'X' toets
+
+        // Laat de screen reader de boodschap "Deleting annotation" zeggen
+        speakText("Deleting annotation");
+
+        // Vraag om bevestiging voor het verwijderen van de annotatie
+        const confirmDelete = confirm("Weet je zeker dat je deze annotatie wilt verwijderen?");
+        if (confirmDelete) {
+          deleteAnnotation(spanId); // Verwijder de annotatie en de bijbehorende selectie uit localStorage
+        }
+      }
+    });
+
+      // Voeg het annotatie-item toe aan het paneel
       panel.appendChild(item);
+
+      // Voeg de annotatie toe aan de navigatielijst
       annotationElements.push(item);
     }
-  });
+  }
 }
+
+function deleteAnnotation(spanId) {
+  // Verwijder de opgeslagen annotatie uit localStorage
+  localStorage.removeItem(spanId);
+
+  // Verwijder het span-element uit de DOM
+  const spanToDelete = document.getElementById(spanId);
+  if (spanToDelete) {
+    spanToDelete.remove();
+  }
+}
+
+
 
 // ✅ Event listeners op tekst-spans
 
-document.querySelectorAll('.text-content span').forEach(span => {
+document.querySelectorAll('.text-content p').forEach(span => {
+
   span.setAttribute('tabindex', '0');
+  span.classList.add('text-focusable');
+
 
   span.addEventListener('focus', () => {
   const text = span.textContent.trim();
-  const words = text.split(/\s+/);
-
-  // Reset eerst eventuele vorige highlights
-  document.querySelectorAll('.highlighted-word').forEach(el => {
-    el.classList.remove('highlighted-word');
-  });
-
-  // Maak HTML met losse <span class="word">
-  span.innerHTML = words.map(w => `<span class="word">${w}</span>`).join(' ');
-
+  document.querySelectorAll('.highlighted-word').forEach(el => el.classList.remove('highlighted-word'));
   speakText(text, span);
-
-  const wordElements = span.querySelectorAll('.word');
-  let index = 0;
-
-  // Start Speech
-  speakText(text); // (of laat dit weg als je alleen visueel wil)
-
-  // Highlight woorden 1 voor 1
-  const wordsPerSecond = 3.30 * speechRate; // ⏱️ 3 wps bij rate 1.0 (ca. 180 wpm)
-const highlightMs = 1000 / wordsPerSecond;
-
-
-highlightInterval = setInterval(() => {
-  wordElements.forEach(w => w.classList.remove('highlighted-word'));
-  if (index < wordElements.length) {
-    wordElements[index].classList.add('highlighted-word');
-    index++;
-  } else {
-    clearInterval(highlightInterval);
-  }
-}, highlightMs);
-// ← Pas dit aan voor snelheid (ms per woord)
 });
+
+
 span.addEventListener('blur', () => {
-  clearInterval(highlightInterval);
-  span.querySelectorAll('.word').forEach(w => w.classList.remove('highlighted-word'));
+  stopSpeaking();
+
+  const hasManualSpan = span.querySelector('[id^="s-"]'); // check op handgemaakte annotatie
+
+  if (hasManualSpan) return; // 🚫 blijf af als er een annotatie-span in zit
+
+  if (span.hasAttribute('data-wrapped')) {
+    span.innerHTML = span.textContent;
+    span.removeAttribute('data-wrapped');
+  }
 });
 
-  span.addEventListener('blur', stopSpeaking);
+
+
   span.addEventListener('click', () => speakText(span.textContent));
 
   document.addEventListener('click', (e) => {
-    const insideText = e.target.closest('.text-content span');
+    const insideText = e.target.closest('.text-content p');
+
     if (!insideText) stopSpeaking();
   });
 
-span.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    currentSpan = span;
+  span.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+  if (!isSelecting) {
+    // ✅ Eerste keer Enter: selectie starten
+    isSelecting = true;
+    toggleGlobalTabbing(true);
+    selectionBaseSpan = span;
+    selectionWords = span.innerText.trim().split(/\s+/);
+    const lastIndex = lastSpokenWordIndexPerSpan[span.id] ?? (selectionWords.length - 1);
+    selectionStartIndex = lastIndex;
+    selectionEndIndex = lastIndex;
 
-    // 👇 Zorg dat tekstvak helemaal leeg is
-    input.value = '';
-    input.innerHTML = '';
-    input.textContent = '';
+    renderSelection();
+    speakText("Selection started. Use arrow keys to expand or shrink. Press Enter again to annotate.");
+    e.preventDefault();
+    return;
+  } else {
+    // ✅ Tweede keer Enter: selectie bevestigen & annotatie starten
+    isSelecting = false;
+    toggleGlobalTabbing(false);
 
+    const selectedWords = selectionWords.slice(selectionStartIndex, selectionEndIndex + 1).join(" ");
+    const newSpanId = `s-${Date.now()}`;
+
+    // ✨ Zet elk woord in een <span class="word" data-index="...">
+    const rebuilt = selectionWords.map((word, i) => {
+      const span = `<span class="word" data-index="${i}">${word}</span>`;
+      if (i === selectionStartIndex) return `<span id="${newSpanId}" tabindex="0">${span}`;
+      else if (i === selectionEndIndex) return `${span}</span>`;
+      else return span;
+    }).join(" ");
+
+    // ✨ Fix: verwijder 'data-wrapped', zodat wrapWordsPreservingDivs weer werkt
+    selectionBaseSpan.removeAttribute('data-wrapped');
+    selectionBaseSpan.innerHTML = rebuilt;
+
+    // Setup nieuwe annotatie-span
+    const newSpan = document.getElementById(newSpanId);
+    newSpan.setAttribute('tabindex', '0');
+    currentSpan = newSpan;
+
+    // Reset selectie
+    selectionBaseSpan = null;
+    selectionWords = [];
+    selectionStartIndex = null;
+    selectionEndIndex = null;
+
+    // Toon popup
     popup.style.display = 'block';
     popupOpen = true;
-
-    // 🧼 Leeg input én focus erop
     input.value = '';
-    input.innerHTML = '';
-    input.textContent = '';
     input.focus();
-
-    // 🎯 Focus trap
-    const focusables = [input, saveBtn, cancelBtn];
-    let trapIndex = 0;
-
-    popup.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-        e.preventDefault();
-        if (e.shiftKey) {
-        trapIndex = (trapIndex - 1 + focusables.length) % focusables.length;
-        } else {
-        trapIndex = (trapIndex + 1) % focusables.length;
-        }
-        focusables[trapIndex].focus();
-    }
-    });
-
     speakText("Add annotation");
 
-    // Cursor helemaal aan het begin plaatsen
-    setTimeout(() => {
-      input.selectionStart = 0;
-      input.selectionEnd = 0;
-    }, 0);
-
-    colorPicker.style.display = 'none';
-
-    setTimeout(() => {
-      const focusables = popup.querySelectorAll('textarea, button, .color-option');
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      popup.addEventListener('keydown', function (e) {
-        if (e.key === 'Tab') {
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      });
+    // Focus trap in popup
+    const focusables = [input, saveBtn, cancelBtn];
+    let trapIndex = 0;
+    popup.addEventListener('keydown', function focusTrap(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        trapIndex = (trapIndex + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length;
+        focusables[trapIndex].focus();
+      }
     });
+
+    e.preventDefault();
+    return;
   }
+}
+
+
+
+  // Later hier: pijltjes en tweede Enter afhandelen
+  if (isSelecting) {
+  const words = selectionBaseSpan.innerText.trim().split(/\s+/);
+  const maxIndex = words.length - 1;
+
+  if (e.key === 'ArrowRight' && !e.shiftKey) {
+    // ➡️ Rechts uitbreiden
+    if (selectionEndIndex < maxIndex) {
+      selectionEndIndex++;
+      renderSelection();
+    }
+    e.preventDefault();
+  }
+
+  if (e.key === 'ArrowLeft' && !e.shiftKey) {
+    // ⬅️ Links uitbreiden
+    if (selectionStartIndex > 0) {
+      selectionStartIndex--;
+      renderSelection();
+    }
+    e.preventDefault();
+  }
+
+  if (e.key === 'ArrowRight' && e.shiftKey) {
+    // ➖ Rechts woord verwijderen
+    if (selectionEndIndex > selectionStartIndex) {
+      selectionEndIndex--;
+      renderSelection();
+    }
+    e.preventDefault();
+  }
+
+  if (e.key === 'ArrowLeft' && e.shiftKey) {
+    // ➖ Links woord verwijderen
+    if (selectionStartIndex < selectionEndIndex) {
+      selectionStartIndex++;
+      renderSelection();
+    }
+    e.preventDefault();
+  }
+
+  if (e.key === 'Enter') {
+    // ✅ Klaar met selecteren → spring naar annotatie popup
+    isSelecting = false;
+
+    // Haal geselecteerde tekst op
+    const words = selectionBaseSpan.innerText.trim().split(/\s+/);
+    const selectedWords = words.slice(selectionStartIndex, selectionEndIndex + 1).join(" ");
+
+    // Maak een nieuwe span met unieke id
+    const newSpanId = `s-${Date.now()}`;
+    const fullWords = words.map((word, i) => {
+      if (i === selectionStartIndex) {
+        return `<span id="${newSpanId}">${word}`;
+      } else if (i === selectionEndIndex) {
+        return `${word}</span>`;
+      } else if (i > selectionStartIndex && i < selectionEndIndex) {
+        return word;
+      } else {
+        return word;
+      }
+    }).join(" ");
+
+    // Zet de nieuwe inhoud
+    selectionBaseSpan.innerHTML = fullWords;
+
+    // Herhaal setup voor nieuwe span
+    const newSpan = document.getElementById(newSpanId);
+    newSpan.setAttribute('tabindex', '0');
+    newSpan.classList.add('annotated');
+    currentSpan = newSpan;
+
+    // Herstel selectie-variabelen
+    selectionBaseSpan = null;
+    selectionStartIndex = null;
+    selectionEndIndex = null;
+
+    // Popup openen (zoals bestaande Enter doet)
+    popup.style.display = 'block';
+    popupOpen = true;
+    input.value = '';
+    input.focus();
+    speakText("Add annotation");
+
+    // Focus trap voorbereiden
+    const focusables = [input, saveBtn, cancelBtn];
+    let trapIndex = 0;
+    popup.addEventListener('keydown', function focusTrap(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        trapIndex = (trapIndex + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length;
+        focusables[trapIndex].focus();
+      }
+    });
+
+    e.preventDefault(); // blokkeer enter doorsturen
+  }
+}
+
 });
+
     
     });
 
@@ -971,7 +1139,6 @@ span.addEventListener('keydown', (e) => {
     }
   }
 }
-
 saveBtn.addEventListener('click', () => {
   if (input.value.trim() !== "") {
     currentNote = input.value.trim();
@@ -980,8 +1147,10 @@ saveBtn.addEventListener('click', () => {
     colorPicker.style.display = 'block';
     cancelBtn.style.display = 'none';
 
+    // Spreek eerst de boodschap uit: Kies een kleur voor de annotatie
     speakText("Choose a color for the annotation");
 
+    // Wacht even voordat we de focus naar de kleurkiezer verplaatsen
     setTimeout(() => {
       const colorOptions = popup.querySelectorAll('.color-option');
       if (colorOptions.length === 0) return;
@@ -991,8 +1160,10 @@ saveBtn.addEventListener('click', () => {
         if (opt === document.activeElement) trapIndex = i;
       });
 
-      colorOptions[0].focus(); // focus op de eerste kleur
+      // Focus op de eerste kleurkiezeroptie
+      colorOptions[0].focus();
 
+      // Voeg een event listener toe voor het vastleggen van tab- en shift-tab-bewegingen
       popup.addEventListener('keydown', trapColorKeys);
 
       function trapColorKeys(e) {
@@ -1009,12 +1180,14 @@ saveBtn.addEventListener('click', () => {
           colorOptions[trapIndex].focus();
         }
       }
-    }, 100);
-    speakText("Pick a color for your annotation");
+    }, 300); // Hier 300ms vertraging voordat de focus naar de kleurkiezer gaat
 
+    // Na de focus, spreek de boodschap uit voor de kleurkiezer
+    setTimeout(() => {
+      speakText("Pick a color for your annotation");
+    }, 350); // Wacht nog iets langer om de focusovergang goed te laten gebeuren
   }
 });
-
 
 
 
@@ -1022,13 +1195,22 @@ saveBtn.addEventListener('click', () => {
 cancelBtn.addEventListener('click', () => {
   closePopup();
   speakText("Annotation canceled");
-  
 });
 
 // 🎧 Spreek knoptekst uit bij focus (zowel voor toevoegen als aanpassen)
 saveBtn.addEventListener('focus', () => {
-  speakText("Save");
+  speakText("Save annotation");
 });
+
+saveBtn.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    // Spreek de boodschap uit wanneer de opslaan knop wordt ingedrukt.
+    speakText("Saving annotation");
+
+    // Hier kunnen we de annotatie opslaan of verder gaan met de opslaan logica
+  }
+});
+
 
 cancelBtn.addEventListener('focus', () => {
   speakText("Cancel");
@@ -1065,58 +1247,120 @@ input.addEventListener('keydown', (e) => {
   }
 });
 
+// Event listener voor 'keydown'
 document.addEventListener('keydown', (e) => {
-  if (popupOpen) return;
-
   const activeEl = document.activeElement;
-  if (settingsOpen) return;
+  const isTyping = activeEl === input || popupOpen;  // Controleer of we in de annotatiepopup aan het typen zijn
 
-  // 🔁 Van span → bijpassende annotatie springen met 'a'
-  if (
-    e.key.toLowerCase() === 'a' &&
-    activeEl &&
-    activeEl.classList.contains('annotated') &&
-    activeEl.id
-  ) {
-    e.preventDefault();
-    const spanId = activeEl.id;
+  // 🚀 Spatiebalk: Focus verplaatsen naar de bijbehorende span met de geannoteerde tekst
+  if (e.key === 'z' && activeEl.classList.contains('annotation-item')) {
+    e.preventDefault(); // Voorkom standaard spatiegedrag
 
-    console.log(`🔍 Looking for annotation linked to span: ${spanId}`);
+    const spanId = activeEl.dataset.ref; // Haal het bijbehorende span-id op uit de annotatie
+    const spanToFocus = document.getElementById(spanId); // Vind de span die bij de annotatie hoort
 
-    const matchingItem = Array.from(document.querySelectorAll('.annotation-item')).find(item => {
-      return item.dataset.ref === spanId;
-    });
-
-    if (matchingItem) {
-      matchingItem.focus();
-      speakText("Bijbehorende annotatie geopend");
-      console.log("✅ Match gevonden:", matchingItem);
-    } else {
-      console.warn("❌ Geen bijpassende annotatie gevonden voor spanId:", spanId);
-      speakText("Geen annotatie gevonden voor dit stuk tekst");
-    }
-    return; // Stop hier, de rest van de annotatie-modus skippen
-  }
-
-  // 🔁 Normale annotatie-navigatie met spatie of 'a'
-  if (e.key === ' ' || e.key.toLowerCase() === 'a') {
-    e.preventDefault();
-    if (!inAnnotationMode) {
-      inAnnotationMode = true;
-      updateAnnotationsPanel();
-      currentAnnotationIndex = 0;
-      focusCurrentAnnotation();
-    } else {
-      currentAnnotationIndex++;
-      if (currentAnnotationIndex >= annotationElements.length) currentAnnotationIndex = 0;
-      focusCurrentAnnotation();
+    // Verplaats de focus naar de bijbehorende span
+    if (spanToFocus) {
+      spanToFocus.focus(); // Focus op de span met het juiste ID
+      speakText(spanToFocus.textContent.trim()); // Laat de screen reader de tekst lezen
     }
   }
 
-  if ((e.key === 'Escape' || e.key === 'Tab') && inAnnotationMode) {
-    inAnnotationMode = false;
-    updateAnnotationsPanel();
-    currentAnnotationIndex = 0;
+  // 📚 Alleen tabben door de tekstcontainer als we niet in de annotaties zijn
+  if (e.key === 'Tab' && activeEl.closest('.text-content') && !activeEl.closest('.annotations-panel')) {
+    e.preventDefault(); // Voorkom standaard tab-functie
+
+    const focusables = document.querySelectorAll('.text-content p');
+    let currentIndex = Array.from(focusables).indexOf(activeEl);
+
+    // Zorg ervoor dat de index correct wordt aangepast zonder dubbele stappen
+    if (e.shiftKey) {
+      // Shift-tab naar vorige
+      currentIndex = (currentIndex - 1 + focusables.length) % focusables.length;
+    } else {
+      // Normale tab naar volgende
+      currentIndex = (currentIndex + 1) % focusables.length;
+    }
+
+    // Focus naar de berekende index (1 stap vooruit, 1 stap achteruit)
+    focusables[currentIndex].focus();
+  }
+
+  // Als de popup open is of we in de tekstinvoer staan, blokkeren we de a-toets niet
+  if (isTyping && e.key === 'a') {
+    // Als de focus in de input staat, laat de 'a' toets toe
+    return;
+  }
+
+  // 🔁 Alleen tabben door annotaties met de 'a' toets (volgende annotatie)
+  if (e.key.toLowerCase() === 'a' && !isTyping) { // Normale 'a' (volgende annotatie)
+    e.preventDefault();
+    if (annotationElements.length > 0) {
+      const currentFocus = document.activeElement;
+      let currentIndex = annotationElements.indexOf(currentFocus);
+
+      // Als er geen focus is, begin dan vanaf de eerste annotatie
+      if (currentIndex === -1) {
+        currentIndex = 0;
+      } else {
+        currentIndex = (currentIndex + 1) % annotationElements.length;
+      }
+
+      // Focus naar de geselecteerde annotatie
+      const nextAnnotation = annotationElements[currentIndex];
+      nextAnnotation.focus();
+
+      // Lees de tekst van de annotatie voor, als deze gefocust is
+      speakText(nextAnnotation.textContent.trim());
+    }
+  }
+
+  if (e.key.toLowerCase() === 'a' && e.shiftKey) { // Shift + A (vorige annotatie)
+    e.preventDefault();
+    if (annotationElements.length > 0) {
+      const currentFocus = document.activeElement;
+      let currentIndex = annotationElements.indexOf(currentFocus);
+
+      // Als er geen focus is, begin dan vanaf de laatste annotatie
+      if (currentIndex === -1) {
+        currentIndex = annotationElements.length - 1;
+      } else {
+        currentIndex = (currentIndex - 1 + annotationElements.length) % annotationElements.length;
+      }
+
+      // Focus naar de geselecteerde annotatie
+      const previousAnnotation = annotationElements[currentIndex];
+      previousAnnotation.focus();
+
+      // Lees de tekst van de annotatie voor, als deze gefocust is
+      speakText(previousAnnotation.textContent.trim());
+    }
+  }
+
+  // 🧭 Als we in de annotaties zijn en Tab indrukken, focus dan direct terug naar de tekstcontainer
+  if (e.key === 'Tab' && activeEl.closest('.annotations-panel')) {
+    e.preventDefault(); // Voorkom standaard tab-functie
+    const firstTextElement = document.querySelector('.text-content p');
+    if (firstTextElement) {
+      firstTextElement.focus(); // Focus direct op de tekstcontainer
+    }
+  }
+
+  // 🔁 Als je Shift + A indrukt, ga naar de vorige annotatie
+  if (e.key.toLowerCase() === 'a' && e.shiftKey) { // Shift + A (vorige annotatie)
+    e.preventDefault();
+    if (annotationElements.length > 0) {
+      const currentFocus = document.activeElement;
+      let currentIndex = annotationElements.indexOf(currentFocus);
+
+      // Als er geen focus is, begin dan vanaf de laatste annotatie
+      if (currentIndex === -1) {
+        currentIndex = annotationElements.length - 1;
+      } else {
+        currentIndex = (currentIndex - 1 + annotationElements.length) % annotationElements.length;
+      }
+      annotationElements[currentIndex].focus();
+    }
   }
 });
 
@@ -1155,15 +1399,30 @@ const settingsPanel = document.getElementById('settingsPanel');
 let settingsOpen = false;
 
 document.addEventListener('keydown', (e) => {
-  // Open/Sluit instellingenmenu alleen als je NIET in de popup aan het typen bent
   const activeElement = document.activeElement;
   const isTyping = activeElement === input || popupOpen;
 
-  if (e.key.toLowerCase() === 'o' && !isTyping) {
-    e.preventDefault(); // voorkom onbedoelde focus
-    settingsOpen = !settingsOpen;
-    settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+  function updateTabFocus() {
+  const isMenuOpen = settingsPanel.classList.contains('open');
+  const textFocusables = document.querySelectorAll('.text-focusable');
+  const menuFocusables = settingsPanel.querySelectorAll('button, input');
 
+  textFocusables.forEach(el => {
+    el.setAttribute('tabindex', isMenuOpen ? '-1' : '0');
+  });
+
+  menuFocusables.forEach(el => {
+    el.setAttribute('tabindex', isMenuOpen ? '0' : '-1');
+  });
+}
+
+  if (e.key.toLowerCase() === 'j' && !isTyping) {
+    e.preventDefault();
+    settingsOpen = !settingsOpen;
+
+    settingsPanel.classList.toggle('open', settingsOpen);
+    updateTabbables();
+    updateTabFocus();
     if (settingsOpen) {
       const first = settingsPanel.querySelector('button, input');
       first && first.focus();
@@ -1172,7 +1431,9 @@ document.addEventListener('keydown', (e) => {
       speakText("Settings menu closed");
     }
   }
+  
 });
+
 
 
 // ✅ Focus trap binnen het instellingenmenu
@@ -1247,30 +1508,295 @@ letterSpacingSlider.addEventListener('input', () => {
   speakText(`Letter spacing ${letterSpacingSlider.value}`);
 });
 
+document.addEventListener('keydown', (e) => {
+  const active = document.activeElement;
+  const isInTextContent = active.closest('.text-content');
+  const annotatedSpans = Array.from(document.querySelectorAll('.text-content .annotated'));
 
-function wrapWordsInSpans() {
-  document.querySelectorAll('.text-content span').forEach(span => {
-    const words = span.textContent.trim().split(/\s+/);
-    span.innerHTML = words.map(word => `<span class="word">${word}</span>`).join(' ');
+  if (e.key === 'Escape' && isSelecting) {
+  isSelecting = false;
+  toggleGlobalTabbing(false);
+  speakText("Selection cancelled");
+  renderSelection(); // evt de selectie visueel verwijderen
+}
+
+  // ⌨️ Ctrl ingedrukt (alleen Ctrl)
+  if (e.ctrlKey && e.key === 'Control' && isInTextContent && annotatedSpans.length) {
+    e.preventDefault();
+    
+    const currentIndex = annotatedSpans.findIndex(span => span === active);
+
+    // Ga naar vorige annotatie (of laatste als je op iets anders stond)
+    let prevIndex = currentIndex > 0
+      ? currentIndex - 1
+      : annotatedSpans.length - 1;
+
+    annotatedSpans[prevIndex].focus();
+    speakText("Previous annotated span");
+  }
+});
+
+if ('webkitSpeechRecognition' in window) {
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = 'en-GB';
+  recognition.continuous = true;
+  recognition.interimResults = false;
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+    console.log("🎤 Gesproken:", transcript);
+
+    if (transcript.includes("stop")) {
+      stopSpeaking();
+      speakText("Reading stopped");
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Speech recognition error:", event.error);
+  };
+
+  recognition.start();
+}
+
+function renderSelection() {
+  if (!selectionBaseSpan || selectionStartIndex === null || selectionEndIndex === null) return;
+
+  const result = selectionWords.map((word, i) => {
+    if (i >= selectionStartIndex && i <= selectionEndIndex) {
+      return `<span class="selection-preview">${word}</span>`;
+    }
+    return word;
+  }).join(" ");
+
+  selectionBaseSpan.innerHTML = result;
+}
+
+function updateTabbables() {
+  const isMenuOpen = settingsPanel.classList.contains('open');
+
+  const textEls = document.querySelectorAll('.text-content .text-focusable');
+  const menuEls = settingsPanel.querySelectorAll('button, input, select, textarea');
+
+  textEls.forEach(el => el.setAttribute('tabindex', isMenuOpen ? '-1' : '0'));
+  menuEls.forEach(el => el.setAttribute('tabindex', isMenuOpen ? '0' : '-1'));
+}
+
+function toggleGlobalTabbing(disable = false) {
+  const focusables = document.querySelectorAll('[tabindex]');
+  focusables.forEach(el => {
+    if (disable) {
+      el.dataset.prevTabIndex = el.getAttribute('tabindex');
+      el.setAttribute('tabindex', '-1');
+    } else if (el.dataset.prevTabIndex !== undefined) {
+      el.setAttribute('tabindex', el.dataset.prevTabIndex);
+      delete el.dataset.prevTabIndex;
+    }
   });
 }
 
-function wrapWordsInSpans() {
-  document.querySelectorAll('.text-content span').forEach(span => {
-    const words = span.textContent.trim().split(/\s+/);
-    span.innerHTML = words.map(word => `<span class="word">${word} </span>`).join('');
+
+document.querySelectorAll('.text-content span').forEach(span => {
+  span.setAttribute('tabindex', '0');
+  
+  span.addEventListener('focus', () => {
+    const text = span.textContent.trim();
+    document.querySelectorAll('.highlighted-word').forEach(el => el.classList.remove('highlighted-word'));
+    speakText(text, span);
+  });
+
+  span.addEventListener('blur', () => {
+    stopSpeaking();
+    // Zorg ervoor dat de tekst weer normaal wordt weergegeven na verlies van focus
+    if (span.hasAttribute('data-wrapped')) {
+      span.innerHTML = span.textContent;
+      span.removeAttribute('data-wrapped');
+    }
+  });
+
+  span.addEventListener('click', () => speakText(span.textContent));
+
+  span.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      currentSpan = span;
+
+      // Leeg het invoerveld voor de annotatie
+      input.value = '';
+      popup.style.display = 'block';
+      popupOpen = true;
+      input.focus();
+
+      // Focus trap voor popup
+      const focusables = [input, saveBtn, cancelBtn];
+      let trapIndex = 0;
+
+      popup.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            trapIndex = (trapIndex - 1 + focusables.length) % focusables.length;
+          } else {
+            trapIndex = (trapIndex + 1) % focusables.length;
+          }
+          focusables[trapIndex].focus();
+        }
+      });
+
+      speakText("Add annotation");
+
+      // Reset het inputvak
+      setTimeout(() => {
+        input.selectionStart = 0;
+        input.selectionEnd = 0;
+      }, 0);
+
+      colorPicker.style.display = 'none';
+    }
+  });
+});
+
+// Log all saved annotations in localStorage
+function logAnnotations() {
+  const annotations = [];
+  // Loop through all saved annotations in localStorage
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("note-")) {  // Check if the key is related to annotations
+      const note = localStorage.getItem(key);
+      const color = localStorage.getItem(key.replace("note-", "color-"));
+      annotations.push({ key, note, color });
+    }
+  }
+  
+  console.log("Saved annotations:", annotations);
+}
+
+// Call this function to log the saved annotations
+logAnnotations();
+
+// Wanneer de annotatiepopup verschijnt, tonen we de kleurkiezer
+function openAnnotationPopup() {
+  popup.style.display = 'block';
+  popupOpen = true;
+  isInPopup = true;
+  input.value = '';
+  input.focus();
+  speakText("Add annotation");
+
+  // Toon de kleurkiezer zodra het invoerveld voor de annotatie zichtbaar is
+  colorPicker.style.display = 'block'; // Kleurkiezer zichtbaar maken
+
+  // Focus op het invoerveld voor de annotatie
+  const focusables = [input, saveBtn, cancelBtn];
+  let trapIndex = 0;
+  popup.addEventListener('keydown', function focusTrap(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      trapIndex = (trapIndex + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length;
+      focusables[trapIndex].focus();
+    }
   });
 }
 
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.text-content span')) {
-    clearInterval(highlightInterval);
-    document.querySelectorAll('.highlighted-word').forEach(w => w.classList.remove('highlighted-word'));
+function deleteAnnotation(spanId) {
+  // Verwijder de annotatie uit localStorage
+  localStorage.removeItem(`note-${spanId}`);
+  localStorage.removeItem(`color-${spanId}`);
+
+  // Verwijder de annotatie uit de DOM
+  const spanToDelete = document.getElementById(spanId);
+  if (spanToDelete) {
+    spanToDelete.classList.remove('annotated');
+    spanToDelete.style.backgroundColor = ''; // Verwijder de achtergrondkleur
+  }
+
+  // Werk het annotatiepaneel bij
+  updateAnnotationsPanel();
+  speakText("Annotation and selection deleted.");
+}
+
+
+// Verwijder de annotatie bij het klikken op de verwijderknop
+const annotationItems = document.querySelectorAll('.annotation-item');
+annotationItems.forEach(item => {
+  item.querySelector('.delete-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+
+    const confirmDelete = confirm("Weet je zeker dat je deze annotatie wilt verwijderen?");
+    if (confirmDelete) {
+      const spanId = item.dataset.ref; // Haal het bijbehorende span-id op
+      deleteAnnotation(spanId); // Verwijder de annotatie en de span
+    }
+  });
+});
+
+// Functie voor het opslaan van annotaties
+function saveAnnotation(selectedText, color) {
+  const spanId = `annotation-${Date.now()}`; // Unieke ID voor de annotatie
+
+  // Sla de geselecteerde tekst en de kleur op in localStorage
+  localStorage.setItem(spanId, JSON.stringify({
+    text: selectedText,
+    color: color
+  }));
+
+  // Maak een span-element met de geselecteerde tekst
+  const span = document.createElement('span');
+  span.id = spanId;
+  span.textContent = selectedText;
+  span.style.backgroundColor = color;
+
+  // Voeg het span-element toe aan de DOM
+  document.querySelector('.text-content').appendChild(span);
+}
+
+
+
+
+
+// Wanneer je de selectie maakt en bevestigt:
+function handleSelection(spanId) {
+  // Veronderstel dat je de geselecteerde tekst uit de interface haalt
+  const selectedText = getSelectedText();  // Dit is een voorbeeld van het ophalen van de geselecteerde tekst
+
+  if (selectedText) {
+    saveAnnotation(spanId, selectedText); // Sla de annotatie en de tekst op in localStorage
+  }
+}
+
+// Voorbeeldfunctie om geselecteerde tekst op te halen
+function getSelectedText() {
+  const selection = window.getSelection();
+  return selection.toString().trim();
+}
+
+
+
+window.addEventListener('load', () => {
+  updateAnnotationsPanel();
+ 
+  updateTabbables();});
+
+window.addEventListener('load', () => {
+  // Laad de opgeslagen annotaties bij het laden van de pagina
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith('annotation-')) { // Filter op annotatiesleutels
+      const data = JSON.parse(localStorage.getItem(key));
+
+      // Maak een nieuw span-element met de opgeslagen tekst en kleur
+      const span = document.createElement('span');
+      span.id = key; // Gebruik het opgeslagen ID
+      span.textContent = data.text;
+      span.style.backgroundColor = data.color;
+
+      // Voeg de span toe aan de juiste plek in de DOM
+      document.querySelector('.text-content').appendChild(span);
+    }
   }
 });
 
 
-window.addEventListener('load', updateAnnotationsPanel);
 
 
 </script>
