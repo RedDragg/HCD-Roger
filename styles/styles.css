@@ -1,0 +1,370 @@
+:root {
+    --bg-color: #121212;
+    --text-color: #ffe66d;
+    --panel-bg: #1e1e1e;
+    --highlight: #2a2a2a;
+    --border-color: #444;
+  }
+
+  body.light {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --panel-bg: #f5f5f5;
+    --highlight: #e6f0ff;
+    --border-color: #ccc;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    /* standaard: menu links */
+  }
+
+  /* 🌗 Menu rechts */
+  body.menu-right {
+    flex-direction: row-reverse;
+  }
+
+  /* ✅ Toggle buttons */
+  #themeToggle,
+  #menuPositionToggle, .panel {
+    right: 10px;
+    z-index: 999;
+    padding: 0.5rem 1rem;
+    background: var(--highlight);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  #menuPositionToggle {
+    top: 50px;
+  }
+
+  #themeToggle {
+    top: 10px;
+  }
+
+  .text-content p {
+    margin: 0 0 1.2rem 0;
+    /* net wat ademruimte tussen paragrafen */
+  }
+
+
+  /* ✅ Annotatie-zijbalk */
+  .annotations-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: clamp(100px, 30%, 300px);
+    background-color: var(--panel-bg);
+    padding: 1rem;
+    border-right: 2px solid var(--border-color);
+    overflow-y: auto;
+    box-sizing: border-box;
+    z-index: 10;
+  }
+
+  body.menu-right .annotations-panel {
+    left: auto;
+    right: 0;
+    border-right: none;
+    border-left: 2px solid var(--border-color);
+  }
+
+  /* ✅ Hoofdtekstgedeelte */
+  .text-content {
+    width: 70%;
+    padding: 1rem;
+    line-height: 1.8;
+    margin-left: clamp(3rem, 30vw, 25rem);
+    /* ruimte maken voor de fixed panel */
+  }
+
+  body.menu-right .text-content {
+    margin-left: 2rem;
+    margin-right: 30%;
+  }
+
+
+  /* ✅ Zinnen */
+  .text-content p {
+    display: inline-block;
+    outline: none;
+  }
+
+  .text-content p:focus {
+    outline: none;
+    background-color: #222;
+    /* donkergrijze achtergrond */
+    color: #ffea00;
+    /* heldergeel voor goede leesbaarheid */
+    box-shadow:
+      0 0 0 3px #1e90ff,
+      /* helderblauwe rand (dodgerblue) */
+      0 0 12px 4px #00bfff;
+    /* lichtblauwe gloed (deepskyblue) */
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    transition: all 0.1s ease;
+  }
+
+
+
+  /* ✅ Geannoteerde zinnen */
+  .annotated {
+    color: black !important;
+  }
+
+  /* ✅ Annotatieblok */
+  .annotation-item {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    color: black !important;
+    word-break: break-word;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .annotation-item div {
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+
+  .annotation-item:focus {
+    outline: 3px solid #ffd700;
+    /* geel, goed zichtbaar op dark én light */
+    outline-offset: 2px;
+    background-color: var(--highlight);
+    /* optioneel extra visuele cue */
+  }
+
+
+  /* ❌ Verwijderknop */
+  .delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: transparent;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  /* ✅ Annotatie popup */
+  #annotationPopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--panel-bg);
+    border: 2px solid var(--border-color);
+    padding: 1rem;
+    z-index: 1000;
+    width: clamp(100px, 80%, 500px);
+    height: 300px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    color: var(--text-color);
+  }
+
+  #annotationPopup textarea {
+    width: 95%;
+    height: 240px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+  }
+
+  /* 🎨 Kleurkiezer */
+  #colorPicker {
+    display: none;
+    margin-top: 1rem;
+  }
+
+  .color-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .color-option {
+    width: 50px;
+    height: 50px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .color-option:focus {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px #0078d4;
+    /* Blauw glow randje */
+    border-color: #0078d4;
+    /* Zelfde kleur als je andere focus */
+  }
+
+  .screenReaderWrapper {
+    position: relative;
+    margin-top: 1rem;
+    background: var(--highlight);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  #speedControlWrapper {
+    background: var(--highlight);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  #speedControlWrapper label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+  }
+
+  #speedSlider {
+    width: 100%;
+  }
+
+  #volumeControlWrapper {
+    margin-top: 1rem;
+    background: var(--highlight);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  #volumeControlWrapper label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+  }
+
+  #volumeSlider {
+    width: 100%;
+  }
+
+  .settings-panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: clamp(100px, 23%, 300px);
+    background: var(--highlight);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    z-index: 999;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* menu links */
+  body:not(.menu-right) .settings-panel {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  /* menu rechts */
+  body.menu-right .settings-panel {
+    right: 0;
+    left: auto;
+    transform: translateX(100%);
+  }
+
+  /* open staat altijd translateX(0) */
+  #settingsPanel.open {
+    transform: translateX(0) !important;
+  }
+
+  .settings-panel button,
+  .settings-panel input,
+  .settings-panel label {
+    display: block;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  #textStyleWrapper {
+    position: relative;
+    margin-top: 1rem;
+    background: var(--highlight);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #textStyleWrapper label {
+    display: block;
+    margin-top: 0.8rem;
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+  }
+
+  #textStyleWrapper input[type="range"] {
+    width: 100%;
+  }
+
+  #textStyleWrapper div {
+    margin-top: 0.3rem;
+  }
+
+  .highlighted-word {
+    border-radius: 4px;
+    padding: .2rem;
+    border: solid 1px #1e90ff;
+    transition: background-color 0.2s;
+  }
+
+  .selection-preview {
+    background-color: #1e90ff;
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+  }
+
+  .text-content p.annotated:focus {
+    background-color: inherit !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    padding: 0.3rem 0.5rem;
+    /* laat dit staan voor spacing */
+    border-radius: 6px;
+  }
+
+  .text-content p.annotated:focus {
+    outline: 2px dashed #0078d4;
+    outline-offset: 4px;
+  }

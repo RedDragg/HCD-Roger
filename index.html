@@ -1,1806 +1,259 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
   <meta charset="UTF-8">
   <title>Roger's Annotatie Tool</title>
-  <style>
-  :root {
-  --bg-color: #121212;
-  --text-color: #ffe66d;
-  --panel-bg: #1e1e1e;
-  --highlight: #2a2a2a;
-  --border-color: #444;
-}
-
-body.light {
-  --bg-color: #ffffff;
-  --text-color: #000000;
-  --panel-bg: #f5f5f5;
-  --highlight: #e6f0ff;
-  --border-color: #ccc;
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  font-family: Arial, sans-serif;
-  margin: 0;
-  display: flex;
-  flex-direction: row; /* standaard: menu links */
-}
-
-/* 🌗 Menu rechts */
-body.menu-right {
-  flex-direction: row-reverse;
-}
-
-/* ✅ Toggle buttons */
-#themeToggle,
-#menuPositionToggle {
-  right: 10px;
-  z-index: 999;
-  padding: 0.5rem 1rem;
-  background: var(--highlight);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-#menuPositionToggle {
-  top: 50px;
-}
-#themeToggle {
-  top: 10px;
-}
-.text-content p {
-  margin: 0 0 1.2rem 0; /* net wat ademruimte tussen paragrafen */
-}
-
-
-/* ✅ Annotatie-zijbalk */
-.annotations-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: clamp(100px, 30%, 300px);
-  background-color: var(--panel-bg);
-  padding: 1rem;
-  border-right: 2px solid var(--border-color);
-  overflow-y: auto;
-  box-sizing: border-box;
-  z-index: 10;
-}
-body.menu-right .annotations-panel {
-  left: auto;
-  right: 0;
-  border-right: none;
-  border-left: 2px solid var(--border-color);
-}
-
-/* ✅ Hoofdtekstgedeelte */
-.text-content {
-  width: 70%;
-  padding: 1rem;
-  line-height: 1.8;
-  margin-left: clamp(3rem, 30vw, 25rem); /* ruimte maken voor de fixed panel */
-}
-body.menu-right .text-content {
-  margin-left: 2rem;
-  margin-right: 30%;
-}
-
-
-/* ✅ Zinnen */
-.text-content p {
-  display: inline-block;
-  outline: none;
-}
-
-.text-content p:focus {
-  outline: none;
-  background-color: #222; /* donkergrijze achtergrond */
-  color: #ffea00; /* heldergeel voor goede leesbaarheid */
-  box-shadow: 
-    0 0 0 3px #1e90ff,        /* helderblauwe rand (dodgerblue) */
-    0 0 12px 4px #00bfff;     /* lichtblauwe gloed (deepskyblue) */
-  border-radius: 6px;
-  padding: 0.3rem 0.5rem;
-  transition: all 0.1s ease;
-}
-
-
-
-/* ✅ Geannoteerde zinnen */
-.annotated {
-  color: black !important;
-}
-
-/* ✅ Annotatieblok */
-.annotation-item {
-  background-color: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  color: black !important;
-  word-break: break-word;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.annotation-item div {
-  flex: 1 1 auto;
-  min-width: 150px;
-}
-
-.annotation-item:focus {
-  outline: 3px solid #ffd700; /* geel, goed zichtbaar op dark én light */
-  outline-offset: 2px;
-  background-color: var(--highlight); /* optioneel extra visuele cue */
-}
-
-
-/* ❌ Verwijderknop */
-.delete-btn {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  background: none;
-  border: none;
-  color: transparent;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* ✅ Annotatie popup */
-#annotationPopup {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--panel-bg);
-  border: 2px solid var(--border-color);
-  padding: 1rem;
-  z-index: 1000;
-  width: clamp(100px, 80%, 500px);
-  height: 300px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-  color: var(--text-color);
-}
-
-#annotationPopup textarea {
-  width: 95%;
-  height: 240px;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem;
-}
-
-/* 🎨 Kleurkiezer */
-#colorPicker {
-  display: none;
-  margin-top: 1rem;
-}
-
-.color-options {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
-.color-option {
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--border-color);
-  border-radius: 4px;
-  cursor: pointer;
-  outline: none;
-}
-
-.color-option:focus {
-  outline: 3px solid #fff;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px #0078d4; /* Blauw glow randje */
-  border-color: #0078d4;         /* Zelfde kleur als je andere focus */
-}
-
-.screenReaderWrapper{
-  position: relative;
-  margin-top: 1rem;
-  background: var(--highlight);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#speedControlWrapper {
-  background: var(--highlight);
-  color: var(--text-color);
-  font-size: 0.9rem;
-  width: 100%;
-}
-
-#speedControlWrapper label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: bold;
-}
-
-#speedSlider {
-  width: 100%;
-}
-
-#volumeControlWrapper {
-  margin-top: 1rem;
-  background: var(--highlight);
-  color: var(--text-color);
-  font-size: 0.9rem;
-  width: 100%;
-}
-
-#volumeControlWrapper label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: bold;
-}
-
-#volumeSlider {
-  width: 100%;
-}
-
-.settings-panel {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  width: clamp(100px, 23%, 300px);
-  background: var(--highlight);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  z-index: 999;
-  transition: transform 0.3s ease-in-out;
-}
-
-/* menu links */
-body:not(.menu-right) .settings-panel {
-  left: 0;
-  transform: translateX(-100%);
-}
-
-/* menu rechts */
-body.menu-right .settings-panel {
-  right: 0;
-  left: auto;
-  transform: translateX(100%);
-}
-
-/* open staat altijd translateX(0) */
-#settingsPanel.open {
-  transform: translateX(0) !important;
-}
-
-.settings-panel button,
-.settings-panel input,
-.settings-panel label {
-  display: block;
-  margin-bottom: 1rem;
-  width: 100%;
-}
-
-#textStyleWrapper {
-  position: relative;
-  margin-top: 1rem;
-  background: var(--highlight);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#textStyleWrapper label {
-  display: block;
-  margin-top: 0.8rem;
-  margin-bottom: 0.4rem;
-  font-weight: bold;
-}
-
-#textStyleWrapper input[type="range"] {
-  width: 100%;
-}
-
-#textStyleWrapper div {
-  margin-top: 0.3rem;
-}
-
-.highlighted-word {
-  background-color: #1e90ff;
-  color: white;
-  border-radius: 4px;
-  padding: 0 0px;
-  transition: background-color 0.2s;
-}
-
-.selection-preview {
-  background-color: #1e90ff;
-  color: white;
-  border-radius: 4px;
-  padding: 0 2px;
-}
-
-.text-content p.annotated:focus {
-  background-color: inherit !important;
-  color: inherit !important;
-  box-shadow: none !important;
-  padding: 0.3rem 0.5rem; /* laat dit staan voor spacing */
-  border-radius: 6px;
-}
-
-.text-content p.annotated:focus {
-  outline: 2px dashed #0078d4;
-  outline-offset: 4px;
-}
-
-
-
-  </style>
+  <link rel="stylesheet" href="styles/styles.css">
 </head>
+
 <body>
 
-<!-- 🌗 Theme toggle -->
-<div id="settingsPanel" class="settings-panel">
+  <!-- 🌗 Theme toggle -->
+  <div id="settingsPanel" class="settings-panel">
     <!-- Toggle donker/licht -->
     <button id="themeToggle" aria-label="Toggle theme: Light or Dark">
       ☀️ Licht / 🌙 Donker
     </button>
-  
+
     <!-- Menu links/rechts -->
     <button id="menuPositionToggle" aria-label="Toggle annotation menu position: Left or Right">
       📍 Menu links/rechts
     </button>
-    
+
+    <!-- controls -->
+    <button class="panel" id="controlsBtn" aria-label="Toon toetsenbord bedieningsoverzicht">
+      🎮 Toetsenoverzicht
+    </button>
+
+    <div class="screenReaderWrapper">
+    <div id="voiceSelectorWrapper">
+      <label for="voiceSelector">🗣️ Stem kiezen (taal)</label>
+      <select class="panel" id="voiceSelector" aria-label="Stem selectie">
+        <option disabled selected>Stem wordt geladen...</option>
+      </select>
+    </div>
+
     <!-- Spreeksnelheid slider -->
-     <div class="screenReaderWrapper">
-    <div id="speedControlWrapper">
-      <label for="speedSlider">🔊 Reading speed</label>
-      <input 
-        type="range"
-        id="speedSlider"
-        min="0.1"
-        max="2"
-        step="0.1"
-        value="0.9"
-        aria-label="Reading speed"
-      >
-      <div id="speedValue">Current: 0.9x</div>
-    </div>
-  
-    <!-- Volume slider -->
-    <div id="volumeControlWrapper">
-      <label for="volumeSlider">🔈 Volume</label>
-      <input 
-        type="range"
-        id="volumeSlider"
-        min="0"
-        max="1"
-        step="0.1"
-        value="1"
-        aria-label="Reading volume"
-      >
-      <div id="volumeValue">Current: 1.0</div>
-    </div>
-</div>
-<!-- Tekstinstellingen -->
-<div id="textStyleWrapper">
-    <label for="fontSizeSlider">🔠 Tekstgrootte</label>
-    <input 
-      type="range" 
-      id="fontSizeSlider" 
-      min="14" 
-      max="30" 
-      value="18"
-      aria-label="Font size"
-    >
-    <div id="fontSizeValue">Current: 18px</div>
-  
-    <label for="fontWeightSlider">🅱️ Dikte van tekst</label>
-    <input 
-      type="range" 
-      id="fontWeightSlider" 
-      min="100" 
-      max="900" 
-      step="100" 
-      value="400"
-      aria-label="Font weight"
-    >
-    <div id="fontWeightValue">Current: 400</div>
-  
-    <label for="lineHeightSlider">📏 Regelafstand</label>
-    <input 
-      type="range" 
-      id="lineHeightSlider" 
-      min="1" 
-      max="3" 
-      step="0.1" 
-      value="1.8"
-      aria-label="Line height"
-    >
-    <div id="lineHeightValue">Current: 1.8</div>
-  
-    <label for="letterSpacingSlider">🔡 Letterafstand</label>
-    <input 
-      type="range" 
-      id="letterSpacingSlider" 
-      min="0" 
-      max="5" 
-      step="0.1" 
-      value=".5"
-      aria-label="Letter spacing"
-    >
-    <div id="letterSpacingValue">Current: 0</div>
     
+      <div id="speedControlWrapper">
+        <label for="speedSlider">🔊 Reading speed</label>
+        <input type="range" id="speedSlider" min="0.1" max="2" step="0.1" value="0.9" aria-label="Reading speed">
+        <div id="speedValue">Current: 0.9x</div>
+      </div>
+
+      <!-- Volume slider -->
+      <div id="volumeControlWrapper">
+        <label for="volumeSlider">🔈 Volume</label>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" aria-label="Reading volume">
+        <div id="volumeValue">Current: 1.0</div>
+      </div>
+    </div>
+
+
+    
+    <!-- Tekstinstellingen -->
+    <div id="textStyleWrapper">
+      <label for="fontSizeSlider">🔠 Tekstgrootte</label>
+      <input type="range" id="fontSizeSlider" min="14" max="30" value="18" aria-label="Font size">
+      <div id="fontSizeValue">Current: 18px</div>
+
+      <label for="fontWeightSlider">🅱️ Dikte van tekst</label>
+      <input type="range" id="fontWeightSlider" min="100" max="900" step="100" value="400" aria-label="Font weight">
+      <div id="fontWeightValue">Current: 400</div>
+
+      <label for="lineHeightSlider">📏 Regelafstand</label>
+      <input type="range" id="lineHeightSlider" min="1" max="3" step="0.1" value="1.8" aria-label="Line height">
+      <div id="lineHeightValue">Current: 1.8</div>
+
+      <label for="letterSpacingSlider">🔡 Letterafstand</label>
+      <input type="range" id="letterSpacingSlider" min="0" max="5" step="0.1" value=".5" aria-label="Letter spacing">
+      <div id="letterSpacingValue">Current: 0</div>
+
+    </div>
+
   </div>
-  
+
+
+  <div class="annotations-panel" id="annotationsPanel">
+    <h2>Annotaties</h2>
   </div>
 
+  <div class="text-content">
+    <h1 tabindex="0">kop1</h1>
+    <p tabindex="0" id="s1">It is a melancholy object to those, who walk through this great town, or travel
+      in the country, when they see the streets, the roads, and cabbin-doors crowded
+      with beggars of the female sex, followed by three, four, or six children, all
+      in rags, and importuning every passenger for an alms. These mothers, instead of
+      being able to work for their honest livelihood, are forced to employ all their
+      time in stroling to beg sustenance for their helpless infants who, as they grow
+      up, either turn thieves for want of work, or leave their dear native country,
+      to fight for the Pretender in Spain, or sell themselves to the Barbadoes.</p>
+    <p tabindex="0" id="s2">I think it is agreed by all parties, that this prodigious number of children in
+      the arms, or on the backs, or at the heels of their mothers, and frequently of
+      their fathers, is in the present deplorable state of the kingdom, a very great
+      additional grievance; and therefore whoever could find out a fair, cheap and
+      easy method of making these children sound and useful members of the
+      commonwealth, would deserve so well of the publick, as to have his statue set
+      up for a preserver of the nation.</p>
 
-  
-  
-  
-  
-  
-  
-  
-  
-
-<div class="annotations-panel" id="annotationsPanel">
-  <h2>Annotaties</h2>
-</div>
-
-<div class="text-content">
-  <p tabindex="0" id="s1">It is a melancholy object to those, who walk through this great town, or travel
-    in the country, when they see the streets, the roads, and cabbin-doors crowded
-    with beggars of the female sex, followed by three, four, or six children, all
-    in rags, and importuning every passenger for an alms. These mothers, instead of
-    being able to work for their honest livelihood, are forced to employ all their
-    time in stroling to beg sustenance for their helpless infants who, as they grow
-    up, either turn thieves for want of work, or leave their dear native country,
-    to fight for the Pretender in Spain, or sell themselves to the Barbadoes.</p>
-  <p tabindex="0" id="s2">I think it is agreed by all parties, that this prodigious number of children in
-    the arms, or on the backs, or at the heels of their mothers, and frequently of
-    their fathers, is in the present deplorable state of the kingdom, a very great
-    additional grievance; and therefore whoever could find out a fair, cheap and
-    easy method of making these children sound and useful members of the
-    commonwealth, would deserve so well of the publick, as to have his statue set
-    up for a preserver of the nation.</p>
-  <p tabindex="0" id="s3">But my intention is very far from being confined to provide only for the
-    children of professed beggars: it is of a much greater extent, and shall take
-    in the whole number of infants at a certain age, who are born of parents in
-    effect as little able to support them, as those who demand our charity in the
-    streets.</p>
+      <h2 tabindex="0">kop2</h2>
+    <p tabindex="0" id="s3">But my intention is very far from being confined to provide only for the
+      children of professed beggars: it is of a much greater extent, and shall take
+      in the whole number of infants at a certain age, who are born of parents in
+      effect as little able to support them, as those who demand our charity in the
+      streets.</p>
     <p tabindex="0" id="s4">As to my own part, having turned my thoughts for many years upon this
-        important subject, and maturely weighed the several schemes of our projectors,
-        I have always found them grossly mistaken in their computation. It is true, a
-        child just dropt from its dam, may be supported by her milk, for a solar year,
-        with little other nourishment: at most not above the value of two shillings,
-        which the mother may certainly get, or the value in scraps, by her lawful
-        occupation of begging; and it is exactly at one year old that I propose to
-        provide for them in such a manner, as, instead of being a charge upon their
-        parents, or the parish, or wanting food and raiment for the rest of their
-        lives, they shall, on the contrary, contribute to the feeding, and partly to
-        the clothing of many thousands.</p>
+      important subject, and maturely weighed the several schemes of our projectors,
+      I have always found them grossly mistaken in their computation. It is true, a
+      child just dropt from its dam, may be supported by her milk, for a solar year,
+      with little other nourishment: at most not above the value of two shillings,
+      which the mother may certainly get, or the value in scraps, by her lawful
+      occupation of begging; and it is exactly at one year old that I propose to
+      provide for them in such a manner, as, instead of being a charge upon their
+      parents, or the parish, or wanting food and raiment for the rest of their
+      lives, they shall, on the contrary, contribute to the feeding, and partly to
+      the clothing of many thousands.</p>
+      <h3 tabindex="0">kop3</h3>
     <p tabindex="0" id="s5">There is likewise another great advantage in my scheme, that it will prevent
-        those voluntary abortions, and that horrid practice of women murdering their
-        bastard children, alas! too frequent among us, sacrificing the poor innocent
-        babes, I doubt, more to avoid the expence than the shame, which would move
-        tears and pity in the most savage and inhuman breast.</p>
+      those voluntary abortions, and that horrid practice of women murdering their
+      bastard children, alas! too frequent among us, sacrificing the poor innocent
+      babes, I doubt, more to avoid the expence than the shame, which would move
+      tears and pity in the most savage and inhuman breast.</p>
     <p tabindex="0" id="s6">The number of souls in this kingdom being usually reckoned one million and a
-        half, of these I calculate there may be about two hundred thousand couple,
-        whose wives are breeders; from which number I subtract thirty thousand couple,
-        who are able to maintain their own children, (although I apprehend there cannot
-        be so many under the present distresses of the kingdom) but this being
-        granted, there will remain a hundred and seventy thousand breeders. I again
-        subtract fifty thousand, for those women who miscarry, or whose children die by
-        accident or disease within the year. There only remain a hundred and twenty
-        thousand children of poor parents annually born. The question therefore is, How
-        this number shall be reared and provided for? which, as I have already said,
-        under the present situation of affairs, is utterly impossible by all the
-        methods hitherto proposed. For we can neither employ them in handicraft or
-        agriculture; they neither build houses, (I mean in the country) nor cultivate
-        land: they can very seldom pick up a livelihood by stealing till they arrive at
-        six years old; except where they are of towardly parts, although I confess they
-        learn the rudiments much earlier; during which time they can however be
-        properly looked upon only as probationers; as I have been informed by a
-        principal gentleman in the county of Cavan, who protested to me, that he never
-        knew above one or two instances under the age of six, even in a part of the
-        kingdom so renowned for the quickest proficiency in that art.</p>
+      half, of these I calculate there may be about two hundred thousand couple,
+      whose wives are breeders; from which number I subtract thirty thousand couple,
+      who are able to maintain their own children, (although I apprehend there cannot
+      be so many under the present distresses of the kingdom) but this being
+      granted, there will remain a hundred and seventy thousand breeders. I again
+      subtract fifty thousand, for those women who miscarry, or whose children die by
+      accident or disease within the year. There only remain a hundred and twenty
+      thousand children of poor parents annually born. The question therefore is, How
+      this number shall be reared and provided for? which, as I have already said,
+      under the present situation of affairs, is utterly impossible by all the
+      methods hitherto proposed. For we can neither employ them in handicraft or
+      agriculture; they neither build houses, (I mean in the country) nor cultivate
+      land: they can very seldom pick up a livelihood by stealing till they arrive at
+      six years old; except where they are of towardly parts, although I confess they
+      learn the rudiments much earlier; during which time they can however be
+      properly looked upon only as probationers; as I have been informed by a
+      principal gentleman in the county of Cavan, who protested to me, that he never
+      knew above one or two instances under the age of six, even in a part of the
+      kingdom so renowned for the quickest proficiency in that art.</p>
+
+      <h4 tabindex="0">kop4</h4>
     <p tabindex="0" id="s7">I am assured by our merchants, that a boy or a girl, before twelve years old,
-        is no saleable commodity, and even when they come to this age, they will not
-        yield above three pounds, or three pounds and half a crown at most, on the
-        exchange; which cannot turn to account either to the parents or kingdom, the
-        charge of nutriments and rags having been at least four times that value.</p>
+      is no saleable commodity, and even when they come to this age, they will not
+      yield above three pounds, or three pounds and half a crown at most, on the
+      exchange; which cannot turn to account either to the parents or kingdom, the
+      charge of nutriments and rags having been at least four times that value.</p>
     <p tabindex="0" id="s8">I shall now therefore humbly propose my own thoughts, which I hope will not be
-        liable to the least objection.</p>
+      liable to the least objection.</p>
     <p tabindex="0" id="s9">I have been assured by a very knowing American of my acquaintance in London,
-        that a young healthy child well nursed, is, at a year old, a most delicious
-        nourishing and wholesome food, whether stewed, roasted, baked, or boiled; and I
-        make no doubt that it will equally serve in a fricasee, or a ragoust.</p>
+      that a young healthy child well nursed, is, at a year old, a most delicious
+      nourishing and wholesome food, whether stewed, roasted, baked, or boiled; and I
+      make no doubt that it will equally serve in a fricasee, or a ragoust.</p>
     <p tabindex="0" id="s10">I do therefore humbly offer it to publick consideration, that of the hundred
-        and twenty thousand children, already computed, twenty thousand may be reserved
-        for breed, whereof only one fourth part to be males; which is more than we
-        allow to sheep, black cattle, or swine, and my reason is, that these children
-        are seldom the fruits of marriage, a circumstance not much regarded by our
-        savages, therefore, one male will be sufficient to serve four females. That the
-        remaining hundred thousand may, at a year old, be offered in sale to the
-        persons of quality and fortune, through the kingdom, always advising the mother
-        to let them suck plentifully in the last month, so as to render them plump, and
-        fat for a good table. A child will make two dishes at an entertainment for
-        friends, and when the family dines alone, the fore or hind quarter will make a
-        reasonable dish, and seasoned with a little pepper or salt, will be very good
-        boiled on the fourth day, especially in winter.</p>
-    
+      and twenty thousand children, already computed, twenty thousand may be reserved
+      for breed, whereof only one fourth part to be males; which is more than we
+      allow to sheep, black cattle, or swine, and my reason is, that these children
+      are seldom the fruits of marriage, a circumstance not much regarded by our
+      savages, therefore, one male will be sufficient to serve four females. That the
+      remaining hundred thousand may, at a year old, be offered in sale to the
+      persons of quality and fortune, through the kingdom, always advising the mother
+      to let them suck plentifully in the last month, so as to render them plump, and
+      fat for a good table. A child will make two dishes at an entertainment for
+      friends, and when the family dines alone, the fore or hind quarter will make a
+      reasonable dish, and seasoned with a little pepper or salt, will be very good
+      boiled on the fourth day, especially in winter.</p>
 
-</div>
 
-<!-- Popup -->
-<div id="annotationPopup">
-  <textarea id="annotationInput" placeholder="Typ je annotatie..."></textarea>
-  <button id="saveBtn" aria-label="Annotatie opslaan">Opslaan</button>
-  <button id="cancelBtn" aria-label="Annotatie annuleren">Annuleren</button>
-  
+  </div>
 
-  <div id="colorPicker">
-    <p>Kies een kleur:</p>
-    <div class="color-options">
-      <div class="color-option" style="background-color: #fff7b2;" data-color="#fff7b2" data-label="Yellow color" tabindex="0"></div>
-      <div class="color-option" style="background-color: #d5fdd5;" data-color="#d5fdd5" data-label="Green color" tabindex="0"></div>
-      <div class="color-option" style="background-color: #d5e9ff;" data-color="#d5e9ff" data-label="Blue color" tabindex="0"></div>
-      <div class="color-option" style="background-color: #ffe2b2;" data-color="#ffe2b2" data-label="Orange color" tabindex="0"></div>
+  <!-- Popup -->
+  <div id="annotationPopup">
+    <textarea id="annotationInput" placeholder="Typ je annotatie..."></textarea>
+    <button id="saveBtn" aria-label="Annotatie opslaan">Opslaan</button>
+    <button id="cancelBtn" aria-label="Annotatie annuleren">Annuleren</button>
+
+
+    <div id="colorPicker">
+      <p>Kies een kleur:</p>
+      <div class="color-options">
+        <div class="color-option" style="background-color: #fff7b2;" data-color="#fff7b2" data-label="Yellow color"
+          tabindex="0"></div>
+        <div class="color-option" style="background-color: #d5fdd5;" data-color="#d5fdd5" data-label="Green color"
+          tabindex="0"></div>
+        <div class="color-option" style="background-color: #d5e9ff;" data-color="#d5e9ff" data-label="Blue color"
+          tabindex="0"></div>
+        <div class="color-option" style="background-color: #ffe2b2;" data-color="#ffe2b2" data-label="Orange color"
+          tabindex="0"></div>
+      </div>
     </div>
   </div>
-</div>
 
-
-<script>
-// ✅ Volledige JS met localStorage voor speechRate, themeToggle, menuPositionToggle en annotatiesysteem
-
-const panel = document.getElementById('annotationsPanel');
-const popup = document.getElementById('annotationPopup');
-const input = document.getElementById('annotationInput');
-const saveBtn = document.getElementById('saveBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const colorPicker = document.getElementById('colorPicker');
-const themeToggle = document.getElementById('themeToggle');
-const positionToggle = document.getElementById('menuPositionToggle');
-const slider = document.getElementById('speedSlider');
-const speedValueText = document.getElementById('speedValue');
-const volumeSlider = document.getElementById('volumeSlider');
-const volumeValueText = document.getElementById('volumeValue');
-
-let currentSpan = null;
-let currentNote = "";
-let annotationElements = [];
-let inAnnotationMode = false;
-let currentAnnotationIndex = 0;
-let popupOpen = false;
-let currentUtterance = null;
-let speechRate = 0.9;
-let speechVolume = 1.0;
-let rateDebounceTimeout = null;
-let volumeDebounceTimeout = null;
-let isSelecting = false;
-let selectionStartIndex = null;
-let selectionEndIndex = null;
-let selectionBaseSpan = null;
-let selectionWords = [];
-let lastSpokenWordIndex = 0;
-let lastSpokenWordIndexPerSpan = {}; // nieuw!
-
-// ✅ Load saved theme
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'light') document.body.classList.add('light');
-
-// ✅ Load saved menu position
-const savedPosition = localStorage.getItem('menuPosition');
-if (savedPosition === 'right') document.body.classList.add('menu-right');
-
-// ✅ Load saved speechRate
-const storedRate = localStorage.getItem('speechRate');
-if (storedRate) {
-  speechRate = parseFloat(storedRate);
-  slider.value = speechRate;
-  speedValueText.textContent = `Current: ${speechRate.toFixed(1)}x`;
-  slider.setAttribute('aria-valuenow', speechRate.toFixed(1));
-  slider.setAttribute('aria-valuetext', `Speed: ${speechRate.toFixed(1)}`);
-}
-
-
-function wrapWordsPreservingDivs(element) {
-  if (element.hasAttribute('data-wrapped')) return;
-  element.setAttribute('data-wrapped', 'true');
-
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-  const toReplace = [];
-
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-
-    // ✅ Skip lege tekst
-    if (!node.nodeValue.trim()) continue;
-
-    const parent = node.parentElement;
-
-    // ✅ Skip als dit binnen een handgemaakte annotatie valt
-    // Bijvoorbeeld: <span id="s-...">...</span>
-    if (
-      parent.closest('[id^="s-"]') ||           // jouw annotatie ID's
-      parent.classList.contains('annotated') || // handmatig gemarkeerd
-      parent.classList.contains('selection-preview') || // tijdelijk selectiestukje
-      parent.classList.contains('word')         // al gewrapt
-    ) {
-      continue;
-    }
-
-    toReplace.push(node);
-  }
-
-  toReplace.forEach(textNode => {
-  const words = textNode.nodeValue.trim().split(/\s+/);
-  const spanWords = words.map((word, i) => {
-    const span = document.createElement('span');
-    span.className = 'word';
-    span.setAttribute('data-index', i);
-    span.setAttribute('id', `word-${Date.now()}-${i}`); // Voeg een uniek ID toe voor elk woord
-    span.textContent = word;
-    return span;
-  });
-
-  const fragment = document.createDocumentFragment();
-  spanWords.forEach((span, idx) => {
-    fragment.appendChild(span);
-    if (idx < spanWords.length - 1) {
-      fragment.appendChild(document.createTextNode(' '));
-    }
-  });
-
-  textNode.parentNode.replaceChild(fragment, textNode);
-});
-
-}
-
-
-
-function speakText(text, spanElement = null) {
-  stopSpeaking();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'en-GB';
-  utterance.rate = speechRate;
-  utterance.volume = speechVolume;
-
-  if (!spanElement) {
-    speechSynthesis.speak(utterance);
-    return;
-  }
-
-  // ✅ Zorg dat woorden gewrapt zijn
-  wrapWordsPreservingDivs(spanElement);
-
-  // ✅ Nu pas ophalen
-  const wordSpans = spanElement.querySelectorAll(".word");
-
-  // ✅ Veiligheidscheck
-  if (wordSpans.length === 0) {
-    console.warn("⚠️ Geen .word-spans gevonden binnen:", spanElement);
-  }
-
-  // ✅ Voor speechSynthesis: volledige platte tekst
-  const plainText = spanElement.innerText.trim();
-  const words = plainText.split(/\s+/);
-
-  // ✅ Bereken character-offsets per woord
-  const wordOffsets = [];
-  let total = 0;
-  for (let word of words) {
-    wordOffsets.push(total);
-    total += word.length + 1; // +1 voor spatie
-  }
-
-  utterance.text = plainText;
-
-  // ✅ Highlight per woord tijdens voorlezen
-  utterance.onboundary = function (event) {
-    if (event.name !== "word") return;
-
-    const charIndex = event.charIndex;
-    let idx = 0;
-    for (let i = 0; i < wordOffsets.length; i++) {
-      if (charIndex < wordOffsets[i] + words[i].length) {
-        idx = i;
-        break;
-      }
-    }
-
-    if (spanElement && spanElement.id) {
-      lastSpokenWordIndexPerSpan[spanElement.id] = idx;
-    }
-
-    wordSpans.forEach(w => w.classList.remove("highlighted-word"));
-    const current = spanElement.querySelector(`.word[data-index="${idx}"]`);
-    if (current) current.classList.add("highlighted-word");
-  };
-
-  utterance.onend = () => {
-    wordSpans.forEach(w => w.classList.remove("highlighted-word"));
-    currentUtterance = null;
-  };
-
-  currentUtterance = utterance;
-  speechSynthesis.speak(utterance);
-}
-
-
-
-function stopSpeaking() {
-  window.speechSynthesis.cancel();
-  currentUtterance = null;
-}
-
-function announceRate() {
-  const rate = speechRate.toFixed(1).replace('.', ' point ');
-  const message = `Speed: ${rate}`;
-  const rateUtterance = new SpeechSynthesisUtterance(message);
-  rateUtterance.lang = 'en-GB';
-  rateUtterance.rate = speechRate;
-  window.speechSynthesis.speak(rateUtterance);
-}
-
-if (slider && speedValueText) {
-
-    slider.addEventListener('input', () => {
-  speechRate = parseFloat(slider.value);
-  localStorage.setItem('speechRate', speechRate.toFixed(1));
-  slider.setAttribute('aria-valuenow', speechRate.toFixed(1));
-  slider.setAttribute('aria-valuetext', `Speed: ${speechRate.toFixed(1)}`);
-  speedValueText.textContent = `Current: ${speechRate.toFixed(1)}x`;
-
-  clearTimeout(rateDebounceTimeout);
-  rateDebounceTimeout = setTimeout(() => {
-    const feedback = new SpeechSynthesisUtterance(`Speed: ${speechRate.toFixed(1)}`);
-    feedback.lang = 'en-GB';
-    feedback.rate = speechRate;
-    feedback.volume = speechVolume;
-    window.speechSynthesis.speak(feedback);
-  }, 300); // wacht 300ms na laatste input
-});
-}
-
-themeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  const mode = document.body.classList.contains('light') ? 'Light modus' : 'Dark modus';
-  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
-  speakText(`${mode} activated`);
-});
-
-positionToggle.addEventListener('click', () => {
-  document.body.classList.toggle('menu-right');
-  const pos = document.body.classList.contains('menu-right') ? 'Right' : 'Left';
-  localStorage.setItem('menuPosition', document.body.classList.contains('menu-right') ? 'right' : 'left');
-  speakText(`Annotation menu location to ${pos}`);
-});
-
-// ✅ Annotatiesysteem
-function closePopup() {
-  popup.style.display = 'none';
-  popupOpen = false;
-  isInPopup = true;
-  input.value = '';
-  input.style.display = 'block';
-  saveBtn.style.display = 'inline-block';
-  colorPicker.style.display = 'none';
-  cancelBtn.style.display = 'inline-block';
-  currentNote = '';
-  currentSpan = null;
-  updateTabbables();
-}
-
-function selectColor(option) {
-  const color = option.getAttribute('data-color');
-  if (currentSpan && currentNote) {
-    const id = currentSpan.id;
-    // Sla de annotatie en kleur op in localStorage
-    localStorage.setItem(`note-${id}`, currentNote);
-    localStorage.setItem(`color-${id}`, color);
-    currentSpan.classList.add('annotated');
-    currentSpan.style.backgroundColor = color;
-    closePopup();
-    speakText("Annotation saved");
-    updateAnnotationsPanel(); // Werk het annotatiepaneel bij
-  }
-}
-
-// ✅ Verwijder de annotatie bij het klikken op de verwijderknop
-function updateAnnotationsPanel() {
-  const panel = document.getElementById('annotationsPanel');
-  panel.innerHTML = '<h2>Annotaties</h2>'; // Clear existing content
-  annotationElements = []; // Reset the annotation elements array
-
-  // Loop door alle opgeslagen annotaties in localStorage
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("note-")) {  // Controleer of de sleutel gerelateerd is aan annotaties
-      const spanId = key.replace("note-", ""); // Haal het span ID op uit de sleutel
-      const note = localStorage.getItem(key); // Haal de annotatie tekst op
-      const color = localStorage.getItem("color-" + spanId); // Haal de kleur van de annotatie op
-
-      // Voeg de tekst weer toe aan de oorspronkelijke span
-      const span = document.getElementById(spanId);
-      if (span) {
-        span.classList.add('annotated');
-        span.style.backgroundColor = color || '#ffea00'; // De kleur voor de annotatie
-      }
-
-      // Maak een nieuw div-element voor de annotatie
-      const item = document.createElement('div');
-      item.className = 'annotation-item';
-      item.style.backgroundColor = color || ''; // Stel de achtergrondkleur van de annotatie in
-      item.dataset.ref = spanId; // Verbind de annotatie met het span ID
-      item.setAttribute('tabindex', '0'); // Maak de annotatie focusable
-
-      // Maak het tekst-div-element dat de annotatietekst toont
-      const text = document.createElement('div');
-      text.textContent = note;
-      text.addEventListener('click', () => {
-        document.getElementById(spanId).scrollIntoView({ behavior: 'smooth', block: 'center' });
-        speakText("Annotation opened");
-      });
-
-      // Voeg de tekst toe aan het annotatie-item
-      item.appendChild(text);
-
-      // Voeg een event listener toe voor het verwijderen van de annotatie
-      item.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 'x') {
-        e.preventDefault(); // Voorkom standaard gedraging van de 'X' toets
-
-        // Laat de screen reader de boodschap "Deleting annotation" zeggen
-        speakText("Deleting annotation");
-
-        // Vraag om bevestiging voor het verwijderen van de annotatie
-        const confirmDelete = confirm("Weet je zeker dat je deze annotatie wilt verwijderen?");
-        if (confirmDelete) {
-          deleteAnnotation(spanId); // Verwijder de annotatie en de bijbehorende selectie uit localStorage
-        }
-      }
-    });
-
-      // Voeg het annotatie-item toe aan het paneel
-      panel.appendChild(item);
-
-      // Voeg de annotatie toe aan de navigatielijst
-      annotationElements.push(item);
-    }
-  }
-}
-
-function deleteAnnotation(spanId) {
-  // Verwijder de opgeslagen annotatie uit localStorage
-  localStorage.removeItem(spanId);
-
-  // Verwijder het span-element uit de DOM
-  const spanToDelete = document.getElementById(spanId);
-  if (spanToDelete) {
-    spanToDelete.remove();
-  }
-}
-
-
-
-// ✅ Event listeners op tekst-spans
-
-document.querySelectorAll('.text-content p').forEach(span => {
-
-  span.setAttribute('tabindex', '0');
-  span.classList.add('text-focusable');
-
-
-  span.addEventListener('focus', () => {
-  const text = span.textContent.trim();
-  document.querySelectorAll('.highlighted-word').forEach(el => el.classList.remove('highlighted-word'));
-  speakText(text, span);
-});
-
-
-span.addEventListener('blur', () => {
-  stopSpeaking();
-
-  const hasManualSpan = span.querySelector('[id^="s-"]'); // check op handgemaakte annotatie
-
-  if (hasManualSpan) return; // 🚫 blijf af als er een annotatie-span in zit
-
-  if (span.hasAttribute('data-wrapped')) {
-    span.innerHTML = span.textContent;
-    span.removeAttribute('data-wrapped');
-  }
-});
-
-
-
-  span.addEventListener('click', () => speakText(span.textContent));
-
-  document.addEventListener('click', (e) => {
-    const insideText = e.target.closest('.text-content p');
-
-    if (!insideText) stopSpeaking();
-  });
-
-  span.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-  if (!isSelecting) {
-    // ✅ Eerste keer Enter: selectie starten
-    isSelecting = true;
-    toggleGlobalTabbing(true);
-    selectionBaseSpan = span;
-    selectionWords = span.innerText.trim().split(/\s+/);
-    const lastIndex = lastSpokenWordIndexPerSpan[span.id] ?? (selectionWords.length - 1);
-    selectionStartIndex = lastIndex;
-    selectionEndIndex = lastIndex;
-
-    renderSelection();
-    speakText("Selection started. Use arrow keys to expand or shrink. Press Enter again to annotate.");
-    e.preventDefault();
-    return;
-  } else {
-    // ✅ Tweede keer Enter: selectie bevestigen & annotatie starten
-    isSelecting = false;
-    toggleGlobalTabbing(false);
-
-    const selectedWords = selectionWords.slice(selectionStartIndex, selectionEndIndex + 1).join(" ");
-    const newSpanId = `s-${Date.now()}`;
-
-    // ✨ Zet elk woord in een <span class="word" data-index="...">
-    const rebuilt = selectionWords.map((word, i) => {
-      const span = `<span class="word" data-index="${i}">${word}</span>`;
-      if (i === selectionStartIndex) return `<span id="${newSpanId}" tabindex="0">${span}`;
-      else if (i === selectionEndIndex) return `${span}</span>`;
-      else return span;
-    }).join(" ");
-
-    // ✨ Fix: verwijder 'data-wrapped', zodat wrapWordsPreservingDivs weer werkt
-    selectionBaseSpan.removeAttribute('data-wrapped');
-    selectionBaseSpan.innerHTML = rebuilt;
-
-    // Setup nieuwe annotatie-span
-    const newSpan = document.getElementById(newSpanId);
-    newSpan.setAttribute('tabindex', '0');
-    currentSpan = newSpan;
-
-    // Reset selectie
-    selectionBaseSpan = null;
-    selectionWords = [];
-    selectionStartIndex = null;
-    selectionEndIndex = null;
-
-    // Toon popup
-    popup.style.display = 'block';
-    popupOpen = true;
-    input.value = '';
-    input.focus();
-    speakText("Add annotation");
-
-    // Focus trap in popup
-    const focusables = [input, saveBtn, cancelBtn];
-    let trapIndex = 0;
-    popup.addEventListener('keydown', function focusTrap(e) {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        trapIndex = (trapIndex + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length;
-        focusables[trapIndex].focus();
-      }
-    });
-
-    e.preventDefault();
-    return;
-  }
-}
-
-
-
-  // Later hier: pijltjes en tweede Enter afhandelen
-  if (isSelecting) {
-  const words = selectionBaseSpan.innerText.trim().split(/\s+/);
-  const maxIndex = words.length - 1;
-
-  if (e.key === 'ArrowRight' && !e.shiftKey) {
-    // ➡️ Rechts uitbreiden
-    if (selectionEndIndex < maxIndex) {
-      selectionEndIndex++;
-      renderSelection();
-    }
-    e.preventDefault();
-  }
-
-  if (e.key === 'ArrowLeft' && !e.shiftKey) {
-    // ⬅️ Links uitbreiden
-    if (selectionStartIndex > 0) {
-      selectionStartIndex--;
-      renderSelection();
-    }
-    e.preventDefault();
-  }
-
-  if (e.key === 'ArrowRight' && e.shiftKey) {
-    // ➖ Rechts woord verwijderen
-    if (selectionEndIndex > selectionStartIndex) {
-      selectionEndIndex--;
-      renderSelection();
-    }
-    e.preventDefault();
-  }
-
-  if (e.key === 'ArrowLeft' && e.shiftKey) {
-    // ➖ Links woord verwijderen
-    if (selectionStartIndex < selectionEndIndex) {
-      selectionStartIndex++;
-      renderSelection();
-    }
-    e.preventDefault();
-  }
-
-  if (e.key === 'Enter') {
-    // ✅ Klaar met selecteren → spring naar annotatie popup
-    isSelecting = false;
-
-    // Haal geselecteerde tekst op
-    const words = selectionBaseSpan.innerText.trim().split(/\s+/);
-    const selectedWords = words.slice(selectionStartIndex, selectionEndIndex + 1).join(" ");
-
-    // Maak een nieuwe span met unieke id
-    const newSpanId = `s-${Date.now()}`;
-    const fullWords = words.map((word, i) => {
-      if (i === selectionStartIndex) {
-        return `<span id="${newSpanId}">${word}`;
-      } else if (i === selectionEndIndex) {
-        return `${word}</span>`;
-      } else if (i > selectionStartIndex && i < selectionEndIndex) {
-        return word;
-      } else {
-        return word;
-      }
-    }).join(" ");
-
-    // Zet de nieuwe inhoud
-    selectionBaseSpan.innerHTML = fullWords;
-
-    // Herhaal setup voor nieuwe span
-    const newSpan = document.getElementById(newSpanId);
-    newSpan.setAttribute('tabindex', '0');
-    newSpan.classList.add('annotated');
-    currentSpan = newSpan;
-
-    // Herstel selectie-variabelen
-    selectionBaseSpan = null;
-    selectionStartIndex = null;
-    selectionEndIndex = null;
-
-    // Popup openen (zoals bestaande Enter doet)
-    popup.style.display = 'block';
-    popupOpen = true;
-    input.value = '';
-    input.focus();
-    speakText("Add annotation");
-
-    // Focus trap voorbereiden
-    const focusables = [input, saveBtn, cancelBtn];
-    let trapIndex = 0;
-    popup.addEventListener('keydown', function focusTrap(e) {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        trapIndex = (trapIndex + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length;
-        focusables[trapIndex].focus();
-      }
-    });
-
-    e.preventDefault(); // blokkeer enter doorsturen
-  }
-}
-
-});
-
-    
-    });
-
-    function trapColorFocus(e) {
-  const colorOptions = popup.querySelectorAll('.color-option');
-  const first = colorOptions[0];
-  const last = colorOptions[colorOptions.length - 1];
-
-  if (e.key === 'Tab') {
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
-}
-saveBtn.addEventListener('click', () => {
-  if (input.value.trim() !== "") {
-    currentNote = input.value.trim();
-    input.style.display = 'none';
-    saveBtn.style.display = 'none';
-    colorPicker.style.display = 'block';
-    cancelBtn.style.display = 'none';
-
-    // Spreek eerst de boodschap uit: Kies een kleur voor de annotatie
-    speakText("Choose a color for the annotation");
-
-    // Wacht even voordat we de focus naar de kleurkiezer verplaatsen
-    setTimeout(() => {
-      const colorOptions = popup.querySelectorAll('.color-option');
-      if (colorOptions.length === 0) return;
-
-      let trapIndex = 0;
-      colorOptions.forEach((opt, i) => {
-        if (opt === document.activeElement) trapIndex = i;
-      });
-
-      // Focus op de eerste kleurkiezeroptie
-      colorOptions[0].focus();
-
-      // Voeg een event listener toe voor het vastleggen van tab- en shift-tab-bewegingen
-      popup.addEventListener('keydown', trapColorKeys);
-
-      function trapColorKeys(e) {
-        const active = document.activeElement;
-        const isColorFocused = Array.from(colorOptions).includes(active);
-
-        if (e.key === 'Tab') {
-          e.preventDefault();
-          if (e.shiftKey) {
-            trapIndex = (trapIndex - 1 + colorOptions.length) % colorOptions.length;
-          } else {
-            trapIndex = (trapIndex + 1) % colorOptions.length;
-          }
-          colorOptions[trapIndex].focus();
-        }
-      }
-    }, 300); // Hier 300ms vertraging voordat de focus naar de kleurkiezer gaat
-
-    // Na de focus, spreek de boodschap uit voor de kleurkiezer
-    setTimeout(() => {
-      speakText("Pick a color for your annotation");
-    }, 350); // Wacht nog iets langer om de focusovergang goed te laten gebeuren
-  }
-});
-
-
-
-
-cancelBtn.addEventListener('click', () => {
-  closePopup();
-  speakText("Annotation canceled");
-});
-
-// 🎧 Spreek knoptekst uit bij focus (zowel voor toevoegen als aanpassen)
-saveBtn.addEventListener('focus', () => {
-  speakText("Save annotation");
-});
-
-saveBtn.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    // Spreek de boodschap uit wanneer de opslaan knop wordt ingedrukt.
-    speakText("Saving annotation");
-
-    // Hier kunnen we de annotatie opslaan of verder gaan met de opslaan logica
-  }
-});
-
-
-cancelBtn.addEventListener('focus', () => {
-  speakText("Cancel");
-});
-
-
-const colorOptions = document.querySelectorAll('.color-option');
-colorOptions.forEach((option, index) => {
-  option.addEventListener('click', () => selectColor(option));
-  option.addEventListener('focus', () => speakText(option.getAttribute('data-label') || 'Kleur'));
-  option.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      const next = colorOptions[index + 1] || colorOptions[0];
-      next.focus();
-    }
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      const prev = colorOptions[index - 1] || colorOptions[colorOptions.length - 1];
-      prev.focus();
-    }
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      selectColor(option);
-    }
-  });
-});
-
-input.addEventListener('keydown', (e) => {
-  if (e.key === "Shift" && e.shiftKey && input.value.trim() !== "") speakText(input.value);
-  if (e.key === 'Escape') {
-    closePopup();
-    speakText("Annotation canceled");
-  }
-});
-
-// Event listener voor 'keydown'
-document.addEventListener('keydown', (e) => {
-  const activeEl = document.activeElement;
-  const isTyping = activeEl === input || popupOpen;  // Controleer of we in de annotatiepopup aan het typen zijn
-
-  // 🚀 Spatiebalk: Focus verplaatsen naar de bijbehorende span met de geannoteerde tekst
-  if (e.key === 'z' && activeEl.classList.contains('annotation-item')) {
-    e.preventDefault(); // Voorkom standaard spatiegedrag
-
-    const spanId = activeEl.dataset.ref; // Haal het bijbehorende span-id op uit de annotatie
-    const spanToFocus = document.getElementById(spanId); // Vind de span die bij de annotatie hoort
-
-    // Verplaats de focus naar de bijbehorende span
-    if (spanToFocus) {
-      spanToFocus.focus(); // Focus op de span met het juiste ID
-      speakText(spanToFocus.textContent.trim()); // Laat de screen reader de tekst lezen
-    }
-  }
-
-  // 📚 Alleen tabben door de tekstcontainer als we niet in de annotaties zijn
-  if (e.key === 'Tab' && activeEl.closest('.text-content') && !activeEl.closest('.annotations-panel')) {
-    e.preventDefault(); // Voorkom standaard tab-functie
-
-    const focusables = document.querySelectorAll('.text-content p');
-    let currentIndex = Array.from(focusables).indexOf(activeEl);
-
-    // Zorg ervoor dat de index correct wordt aangepast zonder dubbele stappen
-    if (e.shiftKey) {
-      // Shift-tab naar vorige
-      currentIndex = (currentIndex - 1 + focusables.length) % focusables.length;
-    } else {
-      // Normale tab naar volgende
-      currentIndex = (currentIndex + 1) % focusables.length;
-    }
-
-    // Focus naar de berekende index (1 stap vooruit, 1 stap achteruit)
-    focusables[currentIndex].focus();
-  }
-
-  // Als de popup open is of we in de tekstinvoer staan, blokkeren we de a-toets niet
-  if (isTyping && e.key === 'a') {
-    // Als de focus in de input staat, laat de 'a' toets toe
-    return;
-  }
-
-  // 🔁 Alleen tabben door annotaties met de 'a' toets (volgende annotatie)
-  if (e.key.toLowerCase() === 'a' && !isTyping) { // Normale 'a' (volgende annotatie)
-    e.preventDefault();
-    if (annotationElements.length > 0) {
-      const currentFocus = document.activeElement;
-      let currentIndex = annotationElements.indexOf(currentFocus);
-
-      // Als er geen focus is, begin dan vanaf de eerste annotatie
-      if (currentIndex === -1) {
-        currentIndex = 0;
-      } else {
-        currentIndex = (currentIndex + 1) % annotationElements.length;
-      }
-
-      // Focus naar de geselecteerde annotatie
-      const nextAnnotation = annotationElements[currentIndex];
-      nextAnnotation.focus();
-
-      // Lees de tekst van de annotatie voor, als deze gefocust is
-      speakText(nextAnnotation.textContent.trim());
-    }
-  }
-
-  if (e.key.toLowerCase() === 'a' && e.shiftKey) { // Shift + A (vorige annotatie)
-    e.preventDefault();
-    if (annotationElements.length > 0) {
-      const currentFocus = document.activeElement;
-      let currentIndex = annotationElements.indexOf(currentFocus);
-
-      // Als er geen focus is, begin dan vanaf de laatste annotatie
-      if (currentIndex === -1) {
-        currentIndex = annotationElements.length - 1;
-      } else {
-        currentIndex = (currentIndex - 1 + annotationElements.length) % annotationElements.length;
-      }
-
-      // Focus naar de geselecteerde annotatie
-      const previousAnnotation = annotationElements[currentIndex];
-      previousAnnotation.focus();
-
-      // Lees de tekst van de annotatie voor, als deze gefocust is
-      speakText(previousAnnotation.textContent.trim());
-    }
-  }
-
-  // 🧭 Als we in de annotaties zijn en Tab indrukken, focus dan direct terug naar de tekstcontainer
-  if (e.key === 'Tab' && activeEl.closest('.annotations-panel')) {
-    e.preventDefault(); // Voorkom standaard tab-functie
-    const firstTextElement = document.querySelector('.text-content p');
-    if (firstTextElement) {
-      firstTextElement.focus(); // Focus direct op de tekstcontainer
-    }
-  }
-
-  // 🔁 Als je Shift + A indrukt, ga naar de vorige annotatie
-  if (e.key.toLowerCase() === 'a' && e.shiftKey) { // Shift + A (vorige annotatie)
-    e.preventDefault();
-    if (annotationElements.length > 0) {
-      const currentFocus = document.activeElement;
-      let currentIndex = annotationElements.indexOf(currentFocus);
-
-      // Als er geen focus is, begin dan vanaf de laatste annotatie
-      if (currentIndex === -1) {
-        currentIndex = annotationElements.length - 1;
-      } else {
-        currentIndex = (currentIndex - 1 + annotationElements.length) % annotationElements.length;
-      }
-      annotationElements[currentIndex].focus();
-    }
-  }
-});
-
-
-function focusCurrentAnnotation() {
-  if (annotationElements.length > 0) {
-    annotationElements[currentAnnotationIndex].focus();
-  }
-}
-
-const storedVolume = localStorage.getItem('speechVolume');
-if (storedVolume) {
-  speechVolume = parseFloat(storedVolume);
-  volumeSlider.value = speechVolume;
-  volumeValueText.textContent = `Current: ${speechVolume.toFixed(1)}`;
-}
-
-if (volumeSlider && volumeValueText) {
-    volumeSlider.addEventListener('input', () => {
-  speechVolume = parseFloat(volumeSlider.value);
-  localStorage.setItem('speechVolume', speechVolume.toFixed(1));
-  volumeValueText.textContent = `Current: ${speechVolume.toFixed(1)}`;
-
-  clearTimeout(volumeDebounceTimeout);
-  volumeDebounceTimeout = setTimeout(() => {
-    const feedback = new SpeechSynthesisUtterance(`Volume: ${speechVolume.toFixed(1)}`);
-    feedback.lang = 'en-GB';
-    feedback.rate = speechRate;
-    feedback.volume = speechVolume;
-    window.speechSynthesis.speak(feedback);
-  }, 300); // wacht 300ms na laatste input
-});
-}
-
-const settingsPanel = document.getElementById('settingsPanel');
-let settingsOpen = false;
-
-document.addEventListener('keydown', (e) => {
-  const activeElement = document.activeElement;
-  const isTyping = activeElement === input || popupOpen;
-
-  function updateTabFocus() {
-  const isMenuOpen = settingsPanel.classList.contains('open');
-  const textFocusables = document.querySelectorAll('.text-focusable');
-  const menuFocusables = settingsPanel.querySelectorAll('button, input');
-
-  textFocusables.forEach(el => {
-    el.setAttribute('tabindex', isMenuOpen ? '-1' : '0');
-  });
-
-  menuFocusables.forEach(el => {
-    el.setAttribute('tabindex', isMenuOpen ? '0' : '-1');
-  });
-}
-
-  if (e.key.toLowerCase() === 'j' && !isTyping) {
-    e.preventDefault();
-    settingsOpen = !settingsOpen;
-
-    settingsPanel.classList.toggle('open', settingsOpen);
-    updateTabbables();
-    updateTabFocus();
-    if (settingsOpen) {
-      const first = settingsPanel.querySelector('button, input');
-      first && first.focus();
-      speakText("Settings menu opened");
-    } else {
-      speakText("Settings menu closed");
-    }
-  }
-  
-});
-
-
-
-// ✅ Focus trap binnen het instellingenmenu
-settingsPanel.addEventListener('keydown', function (e) {
-  if (!settingsOpen) return;
-  const focusable = settingsPanel.querySelectorAll('button, input');
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-
-  if (e.key === 'Tab') {
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
-});
-
-const settingsFocusable = settingsPanel.querySelectorAll('button, input[type="range"]');
-
-settingsFocusable.forEach(element => {
-  element.addEventListener('focus', () => {
-    let label = element.getAttribute('aria-label') || element.innerText || element.id;
-
-    // Voor sliders kun je ook de current value zeggen:
-    if (element.type === 'range') {
-      label += `, current value ${parseFloat(element.value).toFixed(1)}`;
-    }
-
-    speakText(label);
-  });
-});
-
-const textContainer = document.querySelector('.text-content');
-
-// 🔠 Font size
-const fontSizeSlider = document.getElementById('fontSizeSlider');
-const fontSizeValue = document.getElementById('fontSizeValue');
-fontSizeSlider.addEventListener('input', () => {
-  const size = `${fontSizeSlider.value}px`;
-  textContainer.style.fontSize = size;
-  fontSizeValue.textContent = `Current: ${size}`;
-  speakText(`Font size ${fontSizeSlider.value} pixels`);
-});
-
-// 🅱️ Font weight
-const fontWeightSlider = document.getElementById('fontWeightSlider');
-const fontWeightValue = document.getElementById('fontWeightValue');
-fontWeightSlider.addEventListener('input', () => {
-  textContainer.style.fontWeight = fontWeightSlider.value;
-  fontWeightValue.textContent = `Current: ${fontWeightSlider.value}`;
-  speakText(`Font weight ${fontWeightSlider.value}`);
-});
-
-// 📏 Line height
-const lineHeightSlider = document.getElementById('lineHeightSlider');
-const lineHeightValue = document.getElementById('lineHeightValue');
-lineHeightSlider.addEventListener('input', () => {
-  textContainer.style.lineHeight = lineHeightSlider.value;
-  lineHeightValue.textContent = `Current: ${lineHeightSlider.value}`;
-  speakText(`Line height ${lineHeightSlider.value}`);
-});
-
-// 🔡 Letter spacing
-const letterSpacingSlider = document.getElementById('letterSpacingSlider');
-const letterSpacingValue = document.getElementById('letterSpacingValue');
-letterSpacingSlider.addEventListener('input', () => {
-  textContainer.style.letterSpacing = `${letterSpacingSlider.value}px`;
-  letterSpacingValue.textContent = `Current: ${letterSpacingSlider.value}`;
-  speakText(`Letter spacing ${letterSpacingSlider.value}`);
-});
-
-document.addEventListener('keydown', (e) => {
-  const active = document.activeElement;
-  const isInTextContent = active.closest('.text-content');
-  const annotatedSpans = Array.from(document.querySelectorAll('.text-content .annotated'));
-
-  if (e.key === 'Escape' && isSelecting) {
-  isSelecting = false;
-  toggleGlobalTabbing(false);
-  speakText("Selection cancelled");
-  renderSelection(); // evt de selectie visueel verwijderen
-}
-
-  // ⌨️ Ctrl ingedrukt (alleen Ctrl)
-  if (e.ctrlKey && e.key === 'Control' && isInTextContent && annotatedSpans.length) {
-    e.preventDefault();
-    
-    const currentIndex = annotatedSpans.findIndex(span => span === active);
-
-    // Ga naar vorige annotatie (of laatste als je op iets anders stond)
-    let prevIndex = currentIndex > 0
-      ? currentIndex - 1
-      : annotatedSpans.length - 1;
-
-    annotatedSpans[prevIndex].focus();
-    speakText("Previous annotated span");
-  }
-});
-
-if ('webkitSpeechRecognition' in window) {
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = 'en-GB';
-  recognition.continuous = true;
-  recognition.interimResults = false;
-
-  recognition.onresult = (event) => {
-    const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
-    console.log("🎤 Gesproken:", transcript);
-
-    if (transcript.includes("stop")) {
-      stopSpeaking();
-      speakText("Reading stopped");
-    }
-  };
-
-  recognition.onerror = (event) => {
-    console.error("Speech recognition error:", event.error);
-  };
-
-  recognition.start();
-}
-
-function renderSelection() {
-  if (!selectionBaseSpan || selectionStartIndex === null || selectionEndIndex === null) return;
-
-  const result = selectionWords.map((word, i) => {
-    if (i >= selectionStartIndex && i <= selectionEndIndex) {
-      return `<span class="selection-preview">${word}</span>`;
-    }
-    return word;
-  }).join(" ");
-
-  selectionBaseSpan.innerHTML = result;
-}
-
-function updateTabbables() {
-  const isMenuOpen = settingsPanel.classList.contains('open');
-
-  const textEls = document.querySelectorAll('.text-content .text-focusable');
-  const menuEls = settingsPanel.querySelectorAll('button, input, select, textarea');
-
-  textEls.forEach(el => el.setAttribute('tabindex', isMenuOpen ? '-1' : '0'));
-  menuEls.forEach(el => el.setAttribute('tabindex', isMenuOpen ? '0' : '-1'));
-}
-
-function toggleGlobalTabbing(disable = false) {
-  const focusables = document.querySelectorAll('[tabindex]');
-  focusables.forEach(el => {
-    if (disable) {
-      el.dataset.prevTabIndex = el.getAttribute('tabindex');
-      el.setAttribute('tabindex', '-1');
-    } else if (el.dataset.prevTabIndex !== undefined) {
-      el.setAttribute('tabindex', el.dataset.prevTabIndex);
-      delete el.dataset.prevTabIndex;
-    }
-  });
-}
-
-
-document.querySelectorAll('.text-content span').forEach(span => {
-  span.setAttribute('tabindex', '0');
-  
-  span.addEventListener('focus', () => {
-    const text = span.textContent.trim();
-    document.querySelectorAll('.highlighted-word').forEach(el => el.classList.remove('highlighted-word'));
-    speakText(text, span);
-  });
-
-  span.addEventListener('blur', () => {
-    stopSpeaking();
-    // Zorg ervoor dat de tekst weer normaal wordt weergegeven na verlies van focus
-    if (span.hasAttribute('data-wrapped')) {
-      span.innerHTML = span.textContent;
-      span.removeAttribute('data-wrapped');
-    }
-  });
-
-  span.addEventListener('click', () => speakText(span.textContent));
-
-  span.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      currentSpan = span;
-
-      // Leeg het invoerveld voor de annotatie
-      input.value = '';
-      popup.style.display = 'block';
-      popupOpen = true;
-      input.focus();
-
-      // Focus trap voor popup
-      const focusables = [input, saveBtn, cancelBtn];
-      let trapIndex = 0;
-
-      popup.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
-          e.preventDefault();
-          if (e.shiftKey) {
-            trapIndex = (trapIndex - 1 + focusables.length) % focusables.length;
-          } else {
-            trapIndex = (trapIndex + 1) % focusables.length;
-          }
-          focusables[trapIndex].focus();
-        }
-      });
-
-      speakText("Add annotation");
-
-      // Reset het inputvak
-      setTimeout(() => {
-        input.selectionStart = 0;
-        input.selectionEnd = 0;
-      }, 0);
-
-      colorPicker.style.display = 'none';
-    }
-  });
-});
-
-// Log all saved annotations in localStorage
-function logAnnotations() {
-  const annotations = [];
-  // Loop through all saved annotations in localStorage
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith("note-")) {  // Check if the key is related to annotations
-      const note = localStorage.getItem(key);
-      const color = localStorage.getItem(key.replace("note-", "color-"));
-      annotations.push({ key, note, color });
-    }
-  }
-  
-  console.log("Saved annotations:", annotations);
-}
-
-// Call this function to log the saved annotations
-logAnnotations();
-
-// Wanneer de annotatiepopup verschijnt, tonen we de kleurkiezer
-function openAnnotationPopup() {
-  popup.style.display = 'block';
-  popupOpen = true;
-  isInPopup = true;
-  input.value = '';
-  input.focus();
-  speakText("Add annotation");
-
-  // Toon de kleurkiezer zodra het invoerveld voor de annotatie zichtbaar is
-  colorPicker.style.display = 'block'; // Kleurkiezer zichtbaar maken
-
-  // Focus op het invoerveld voor de annotatie
-  const focusables = [input, saveBtn, cancelBtn];
-  let trapIndex = 0;
-  popup.addEventListener('keydown', function focusTrap(e) {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      trapIndex = (trapIndex + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length;
-      focusables[trapIndex].focus();
-    }
-  });
-}
-
-function deleteAnnotation(spanId) {
-  // Verwijder de annotatie uit localStorage
-  localStorage.removeItem(`note-${spanId}`);
-  localStorage.removeItem(`color-${spanId}`);
-
-  // Verwijder de annotatie uit de DOM
-  const spanToDelete = document.getElementById(spanId);
-  if (spanToDelete) {
-    spanToDelete.classList.remove('annotated');
-    spanToDelete.style.backgroundColor = ''; // Verwijder de achtergrondkleur
-  }
-
-  // Werk het annotatiepaneel bij
-  updateAnnotationsPanel();
-  speakText("Annotation and selection deleted.");
-}
-
-
-// Verwijder de annotatie bij het klikken op de verwijderknop
-const annotationItems = document.querySelectorAll('.annotation-item');
-annotationItems.forEach(item => {
-  item.querySelector('.delete-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-
-    const confirmDelete = confirm("Weet je zeker dat je deze annotatie wilt verwijderen?");
-    if (confirmDelete) {
-      const spanId = item.dataset.ref; // Haal het bijbehorende span-id op
-      deleteAnnotation(spanId); // Verwijder de annotatie en de span
-    }
-  });
-});
-
-// Functie voor het opslaan van annotaties
-function saveAnnotation(selectedText, color) {
-  const spanId = `annotation-${Date.now()}`; // Unieke ID voor de annotatie
-
-  // Sla de geselecteerde tekst en de kleur op in localStorage
-  localStorage.setItem(spanId, JSON.stringify({
-    text: selectedText,
-    color: color
-  }));
-
-  // Maak een span-element met de geselecteerde tekst
-  const span = document.createElement('span');
-  span.id = spanId;
-  span.textContent = selectedText;
-  span.style.backgroundColor = color;
-
-  // Voeg het span-element toe aan de DOM
-  document.querySelector('.text-content').appendChild(span);
-}
-
-
-
-
-
-// Wanneer je de selectie maakt en bevestigt:
-function handleSelection(spanId) {
-  // Veronderstel dat je de geselecteerde tekst uit de interface haalt
-  const selectedText = getSelectedText();  // Dit is een voorbeeld van het ophalen van de geselecteerde tekst
-
-  if (selectedText) {
-    saveAnnotation(spanId, selectedText); // Sla de annotatie en de tekst op in localStorage
-  }
-}
-
-// Voorbeeldfunctie om geselecteerde tekst op te halen
-function getSelectedText() {
-  const selection = window.getSelection();
-  return selection.toString().trim();
-}
-
-
-
-window.addEventListener('load', () => {
-  updateAnnotationsPanel();
- 
-  updateTabbables();});
-
-window.addEventListener('load', () => {
-  // Laad de opgeslagen annotaties bij het laden van de pagina
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('annotation-')) { // Filter op annotatiesleutels
-      const data = JSON.parse(localStorage.getItem(key));
-
-      // Maak een nieuw span-element met de opgeslagen tekst en kleur
-      const span = document.createElement('span');
-      span.id = key; // Gebruik het opgeslagen ID
-      span.textContent = data.text;
-      span.style.backgroundColor = data.color;
-
-      // Voeg de span toe aan de juiste plek in de DOM
-      document.querySelector('.text-content').appendChild(span);
-    }
-  }
-});
-
-
-
-
-</script>
+  <div id="controlsPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+background: var(--panel-bg); border: 2px solid var(--border-color); padding: 1rem; z-index: 9999;
+color: var(--text-color); width: clamp(300px, 90%, 480px); border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.4);">
+    <h2>🕹️ Controls</h2>
+    <table style="width:100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding-bottom: 0.5rem;">Toets</th>
+          <th style="text-align: left; padding-bottom: 0.5rem;">Actie</th>
+          <th style="text-align: left; padding-bottom: 0.5rem;">Wanneer?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr tabindex="0">
+          <td><code>Enter</code></td>
+          <td>Start/selecteer annotatie</td>
+          <td>Op een zin</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>Arrow keys</code></td>
+          <td>Breid selectie uit/in</td>
+          <td>Na eerste Enter</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>A</code></td>
+          <td>Volgende annotatie</td>
+          <td>Altijd</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>Shift + A</code></td>
+          <td>Vorige annotatie</td>
+          <td>Altijd</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>Z</code></td>
+          <td>Spring naar tekst</td>
+          <td>Op annotatie</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>J</code></td>
+          <td>Instellingen openen/sluiten</td>
+          <td>Altijd</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>Esc</code></td>
+          <td>Annuleer selectie/popup</td>
+          <td>Tijdens annotatie</td>
+        </tr>
+        <tr tabindex="0">
+          <td><code>Ctrl</code></td>
+          <td>Vorige geannoteerde zin</td>
+          <td>In tekst</td>
+        </tr>
+      </tbody>
+
+    </table>
+    <button id="closeControlsBtn" style="margin-top: 1rem;">Sluiten</button>
+  </div>
+
+
+  <script src="js/script.js"></script>
 
 </body>
-</html>
 
+</html>
